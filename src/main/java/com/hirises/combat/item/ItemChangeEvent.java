@@ -5,6 +5,13 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
 public class ItemChangeEvent extends Event {
+    enum Cause{
+        Enchant,
+        Anvil,
+        Use,
+        ;
+    }
+
     public static HandlerList handlerlist = new HandlerList();
 
     public static HandlerList getHandlerList() {
@@ -18,9 +25,15 @@ public class ItemChangeEvent extends Event {
 
     private boolean canceled = false;
     private ItemStack itemStack;
+    private Cause cause;
 
-    public ItemChangeEvent(ItemStack itemStack) {
+    public ItemChangeEvent(ItemStack itemStack, Cause cause) {
         this.itemStack = itemStack;
+        this.cause = cause;
+    }
+
+    public Cause getCause(){
+        return cause;
     }
 
     public boolean isCanceled() {
@@ -33,9 +46,5 @@ public class ItemChangeEvent extends Event {
 
     public ItemStack getItemStack() {
         return itemStack;
-    }
-
-    public void setItemStack(ItemStack itemStack) {
-        this.itemStack = itemStack;
     }
 }

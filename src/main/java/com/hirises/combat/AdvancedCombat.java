@@ -20,12 +20,6 @@ public final class AdvancedCombat extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new ItemSpawnListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new CustomItemManager(), plugin);
-
-        CustomItemManager.registerItemReplacement(Material.EMERALD,
-                ItemUtil.setDisplayName(new ItemStack(Material.NETHER_STAR), ChatColor.YELLOW + "10코인"));
-        CustomItemManager.registerItemReplacement(Material.IRON_INGOT,
-                ItemUtil.setDisplayName(new ItemStack(Material.NETHER_STAR), ChatColor.YELLOW + "1코인"));
-        CustomItemManager.registerItemRemove(Material.COBBLESTONE);
     }
 
     @Override

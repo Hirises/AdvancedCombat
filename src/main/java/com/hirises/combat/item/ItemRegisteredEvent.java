@@ -9,7 +9,6 @@ public class ItemRegisteredEvent extends Event {
         Chest,
         Drop,
         Craft,
-        Earn,
         Trade,
         Water,
         ;

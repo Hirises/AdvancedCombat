@@ -10,13 +10,12 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -189,7 +188,7 @@ public class ItemSpawnListener implements Listener {
             return;
         }
 
-        ItemRegisteredEvent event1 = new ItemRegisteredEvent(item, ItemRegisteredEvent.Cause.Chest);
+        ItemRegisteredEvent event1 = new ItemRegisteredEvent(item, ItemRegisteredEvent.Cause.Water);
         Bukkit.getPluginManager().callEvent(event1);
 
         if(event1.isCanceled()){
@@ -207,13 +206,43 @@ public class ItemSpawnListener implements Listener {
             return;
         }
 
-        ItemRegisteredEvent event1 = new ItemRegisteredEvent(item, ItemRegisteredEvent.Cause.Chest);
+        ItemRegisteredEvent event1 = new ItemRegisteredEvent(item, ItemRegisteredEvent.Cause.Water);
         Bukkit.getPluginManager().callEvent(event1);
 
         if(event1.isCanceled()){
             event.setItemStack(new ItemStack(Material.AIR));
         }else{
             event.setItemStack(NBTTagStore.set(event1.getItemStack(), Keys.Item_Checked.toString(), true));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onItemEnchant(EnchantItemEvent event){
+        ItemChangeEvent event1 = new ItemChangeEvent(event.getItem(), ItemChangeEvent.Cause.Enchant);
+        Bukkit.getPluginManager().callEvent(event1);
+
+        if(event1.isCanceled()){
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onItemRepair(PlayerItemMendEvent event){
+        ItemChangeEvent event1 = new ItemChangeEvent(event.getItem(), ItemChangeEvent.Cause.Anvil);
+        Bukkit.getPluginManager().callEvent(event1);
+
+        if(event1.isCanceled()){
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onItemDamage(PlayerItemDamageEvent event){
+        ItemChangeEvent event1 = new ItemChangeEvent(event.getItem(), ItemChangeEvent.Cause.Anvil);
+        Bukkit.getPluginManager().callEvent(event1);
+
+        if(event1.isCanceled()){
+            event.setCancelled(true);
         }
     }
 }
