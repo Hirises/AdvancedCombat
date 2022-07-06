@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.hirises'
+version = '0.0.2'
+
+compileJava.options.encoding 'UTF-8'    //혹시 모를 컴파일 오류 방지 목적
+
+jar{
+    archivesBaseName = "AdvancedCombat"
+    archiveVersion = ''
+    destinationDir = file("$projectDir/jar")    //빌드되서 나오는 위치 설정
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])    //libs 폴더 내부 참조
+    compileOnly 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
+}
+
+def targetJavaVersion = 17
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release = targetJavaVersion
+    }
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
