@@ -1,7 +1,8 @@
 package com.hirises.combat.config;
 
 public enum Keys {
-    Item_Checked("combat_item_checked")
+    Item_Checked("combat_item_checked"),
+    Current_Health("combat_current_health"),
     ;
 
     private String key;

@@ -23,7 +23,7 @@ import org.bukkit.inventory.MerchantRecipe;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemSpawnListener implements Listener {
+public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemSpawn(ItemSpawnEvent event){
