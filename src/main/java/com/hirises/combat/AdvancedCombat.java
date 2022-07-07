@@ -2,7 +2,7 @@ package com.hirises.combat;
 
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.damage.AbstractCombatManager;
-import com.hirises.combat.damage.DamageListener;
+import com.hirises.combat.damage.EventListener;
 import com.hirises.combat.damage.impl.SimpleCombatManager;
 import com.hirises.combat.item.CustomItemManager;
 import com.hirises.combat.item.ItemListener;
@@ -28,7 +28,7 @@ public final class AdvancedCombat extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new ItemListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new CustomItemManager(), plugin);
-        Bukkit.getPluginManager().registerEvents(new DamageListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new EventListener(), plugin);
     }
 
     @Override

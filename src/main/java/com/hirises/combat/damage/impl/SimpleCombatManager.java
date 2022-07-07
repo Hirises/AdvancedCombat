@@ -11,10 +11,12 @@ import com.hirises.core.util.ItemUtil;
 import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -68,6 +70,19 @@ public class SimpleCombatManager extends AbstractCombatManager {
         return 0;
     }
 
+    public int getWeight(LivingEntity entity){
+        EntityEquipment equipment = entity.getEquipment();
+        return getWeight(equipment.getItemInMainHand(), equipment.getHelmet(),
+                equipment.getChestplate(), equipment.getLeggings(), equipment.getBoots());
+    }
+
+    public int getWeight(ItemStack weapon, ItemStack helmet, ItemStack chest, ItemStack leggings, ItemStack boots){
+        int weight = 0;
+        if(ItemUtil.isExist(weapon))
+            weight += getWeaponData(weapon.getType()).getWeight();
+        return weight;
+    }
+
     public void spawnDamageMeter(Location loc, String string){
         ArmorStandWrapper meter = ArmorStandWrapper.getInstance(
                 loc.add(Vector.getRandom().add(new Vector(-0.5, 0, -0.5)))
@@ -85,7 +100,11 @@ public class SimpleCombatManager extends AbstractCombatManager {
         if(!ItemUtil.isExist(weapon)){
             return ConfigManager.bearHand;
         }
-        WeaponData output = ConfigManager.weaponDataMap.get(weapon.getType());
+        return getWeaponData(weapon.getType());
+    }
+
+    public WeaponData getWeaponData(Material weapon){
+        WeaponData output = ConfigManager.weaponDataMap.get(weapon);
         if(output == null){
             return ConfigManager.bearHand;
         }

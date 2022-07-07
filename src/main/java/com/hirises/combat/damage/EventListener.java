@@ -7,7 +7,6 @@ import com.hirises.combat.damage.impl.SimpleDamageApplier;
 import com.hirises.combat.damage.impl.SimpleDamageTag;
 import com.hirises.core.util.Util;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -16,18 +15,32 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.EntityEquipment;
 
-public class DamageListener implements Listener {
+public class EventListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
         Player player = event.getPlayer();
         player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(ConfigManager.bearHand.getAttackSpeed());
         player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(
-                player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue()
-                        * (ConfigManager.weightData.normalSpeedRate() / 100.0)
+                (ConfigManager.weightData.normalSpeedRate() / 1000.0)
         );
+    }
+
+    @EventHandler
+    public void onItemHeld(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+        EntityEquipment equipment = player.getEquipment();
+        double speedRate = ConfigManager.weightData.getSpeedRate(
+                ((SimpleCombatManager) AdvancedCombat.getCombatManager())
+                        .getWeight(player.getInventory().getItem(event.getNewSlot()),
+                                equipment.getHelmet(), equipment.getChestplate(),
+                                equipment.getLeggings(), equipment.getBoots())
+        );
+        player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
     }
 
     @EventHandler
@@ -54,8 +67,6 @@ public class DamageListener implements Listener {
                 case THORNS: //가시
                     event.setCancelled(true);
                     return;
-                case FALL:
-                    //낙하
                 case FALLING_BLOCK:
                 case CONTACT:
                     //물리 데미지
@@ -86,6 +97,8 @@ public class DamageListener implements Listener {
                     //마법 데미지
                     applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Magic));
                     break;
+                case FALL:
+                    //낙하
                 default:
                     //고정 데미지
                     applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Const));
