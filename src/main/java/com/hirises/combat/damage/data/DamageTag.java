@@ -1,11 +1,11 @@
-package com.hirises.combat.damage.impl;
+package com.hirises.combat.damage.data;
 
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 
 import java.util.EnumSet;
 
-public class SimpleDamageTag implements DataUnit {
+public class DamageTag implements DataUnit {
     public enum AttackType{
         Normal,
         Physics,
@@ -23,19 +23,19 @@ public class SimpleDamageTag implements DataUnit {
     private AttackType attackType;
     private EnumSet<DamageType> damageTypes;
 
-    public SimpleDamageTag(){
+    public DamageTag(){
         this(AttackType.Normal);
     }
 
-    public SimpleDamageTag(AttackType attackType){
+    public DamageTag(AttackType attackType){
         this(attackType, EnumSet.noneOf(DamageType.class));
     }
 
-    public SimpleDamageTag(AttackType attackType, DamageType damageType){
+    public DamageTag(AttackType attackType, DamageType damageType){
         this(attackType, EnumSet.of(damageType));
     }
 
-    public SimpleDamageTag(AttackType attackType, EnumSet<DamageType> damageTypes){
+    public DamageTag(AttackType attackType, EnumSet<DamageType> damageTypes){
         this.attackType = attackType;
         this.damageTypes = damageTypes;
     }

@@ -1,39 +1,42 @@
-package com.hirises.combat.damage.impl;
+package com.hirises.combat.damage.data;
 
 import com.hirises.combat.AdvancedCombat;
+import com.hirises.combat.damage.CombatManager;
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 import org.bukkit.entity.LivingEntity;
 
-public class SimpleDamage implements DataUnit {
-    private double damage;
-    private SimpleDamageTag damageTag;
+import java.util.List;
 
-    public SimpleDamage(){
+public class Damage implements DataUnit {
+    private double damage;
+    private DamageTag damageTag;
+
+    public Damage(){
         this.damage = 0;
-        this.damageTag = new SimpleDamageTag();
+        this.damageTag = new DamageTag();
     }
 
-    public SimpleDamage(double damage, SimpleDamageTag damageTag){
+    public Damage(double damage, DamageTag damageTag){
         this.damage = damage;
         this.damageTag = damageTag;
     }
 
-    public double getFinalDamage(LivingEntity entity){
-        if(damageTag.equalAttackType(SimpleDamageTag.AttackType.Const)){
+    public double getFinalDamage(LivingEntity entity, List<DefencePenetrate> penetrates){
+        if(damageTag.equalAttackType(DamageTag.AttackType.Const)){
             return damage;
         }
-        return (damage * 100) / (((SimpleCombatManager) AdvancedCombat.getCombatManager()).getDefence(entity, damageTag) + 100);
+        return (damage * 100) / (((CombatManager) AdvancedCombat.getCombatManager()).getDefence(entity, damageTag, penetrates) + 100);
     }
 
-    public SimpleDamageTag getDamageTag() {
+    public DamageTag getDamageTag() {
         return damageTag;
     }
 
     @Override
     public void load(YamlStore yml, String root) {
         this.damage = yml.getToNumber(root + ".데미지");
-        this.damageTag = yml.getOrDefault(new SimpleDamageTag(), root);
+        this.damageTag = yml.getOrDefault(new DamageTag(), root);
     }
 
     @Override

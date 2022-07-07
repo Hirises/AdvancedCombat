@@ -2,10 +2,9 @@ package com.hirises.combat.damage;
 
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
-import com.hirises.combat.damage.impl.SimpleCombatManager;
-import com.hirises.combat.damage.impl.SimpleDamageApplier;
-import com.hirises.combat.damage.impl.SimpleDamageTag;
-import com.hirises.core.util.Util;
+import com.hirises.combat.damage.data.DamageApplier;
+import com.hirises.combat.damage.data.DamageTag;
+import com.hirises.combat.damage.data.WeaponData;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -35,7 +34,7 @@ public class EventListener implements Listener {
         Player player = event.getPlayer();
         EntityEquipment equipment = player.getEquipment();
         double speedRate = ConfigManager.weightData.getSpeedRate(
-                ((SimpleCombatManager) AdvancedCombat.getCombatManager())
+                CombatManager
                         .getWeight(player.getInventory().getItem(event.getNewSlot()),
                                 equipment.getHelmet(), equipment.getChestplate(),
                                 equipment.getLeggings(), equipment.getBoots())
@@ -47,7 +46,7 @@ public class EventListener implements Listener {
     public void onEntityHeal(EntityRegainHealthEvent event){
         if(event.getEntity() instanceof LivingEntity){
             LivingEntity entity = (LivingEntity) event.getEntity();
-            AdvancedCombat.getCombatManager().heal(entity, event.getAmount() * SimpleCombatManager.DAMAGE_MODIFIER);
+            CombatManager.heal(entity, event.getAmount() * CombatManager.DAMAGE_MODIFIER);
             event.setAmount(0);
         }
     }
@@ -56,7 +55,7 @@ public class EventListener implements Listener {
     public void onEntityDamage(EntityDamageEvent event){
         if(event.getEntity() instanceof LivingEntity){
             LivingEntity entity = (LivingEntity) event.getEntity();
-            SimpleDamageApplier applier = null;
+            DamageApplier applier = null;
             switch (event.getCause()){
                 case ENTITY_ATTACK: //플레이어 공격
                 case ENTITY_SWEEP_ATTACK: //휘칼
@@ -70,41 +69,41 @@ public class EventListener implements Listener {
                 case FALLING_BLOCK:
                 case CONTACT:
                     //물리 데미지
-                    applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Physics));
+                    applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Physics));
                     break;
                 case ENTITY_EXPLOSION:
                 case BLOCK_EXPLOSION:
                     //물리, 폭발 데미지
-                    applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Physics, SimpleDamageTag.DamageType.Explosion));
+                    applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Physics, DamageTag.DamageType.Explosion));
                     break;
                 case FIRE:
                 case FIRE_TICK:
                 case HOT_FLOOR:
                 case LAVA:
                     //일반, 화염 데미지
-                    applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Normal, SimpleDamageTag.DamageType.Fire));
+                    applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Normal, DamageTag.DamageType.Fire));
                     break;
                 case FREEZE:
                     //일반 데미지
-                    applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Normal));
+                    applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Normal));
                     break;
                 case SONIC_BOOM:
                     //마법, 원거리 데미지
-                    applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Magic, SimpleDamageTag.DamageType.Projectile));
+                    applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Magic, DamageTag.DamageType.Projectile));
                     break;
                 case DRAGON_BREATH:
                 case MAGIC:
                     //마법 데미지
-                    applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Magic));
+                    applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Magic));
                     break;
                 case FALL:
                     //낙하
                 default:
                     //고정 데미지
-                    applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Const));
+                    applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Const));
                     break;
             }
-            applier.apply(entity, AbstractCombatManager.DAMAGE_MODIFIER);
+            applier.apply(entity, CombatManager.DAMAGE_MODIFIER);
             event.setDamage(0);
         }
     }
@@ -115,12 +114,12 @@ public class EventListener implements Listener {
             LivingEntity entity = (LivingEntity) event.getEntity();
             if(event.getDamager() instanceof Projectile){
                 event.setDamage(0);
-                SimpleDamageApplier applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Physics));
-                applier.apply(entity, AbstractCombatManager.DAMAGE_MODIFIER);
+                DamageApplier applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Physics));
+                applier.apply(entity, CombatManager.DAMAGE_MODIFIER);
             }else if(event.getDamager() instanceof LivingEntity){
                 if(event.getDamager() instanceof Player){
                     Player player = (Player) event.getDamager();
-                    WeaponData weapon = ((SimpleCombatManager) AdvancedCombat.getCombatManager()).getWeaponData(player);
+                    WeaponData weapon = CombatManager.getWeaponData(player);
                     if(entity.getLocation().distanceSquared(player.getLocation()) > weapon.getReach() * weapon.getReach()){
                         event.setCancelled(true);
                         return;
@@ -128,8 +127,8 @@ public class EventListener implements Listener {
                 }
                 event.setDamage(0);
                 LivingEntity damager = (LivingEntity) event.getDamager();
-                WeaponData weapon = ((SimpleCombatManager) AdvancedCombat.getCombatManager()).getWeaponData(damager);
-                SimpleDamageApplier applier = weapon.getDamage();
+                WeaponData weapon = CombatManager.getWeaponData(damager);
+                DamageApplier applier = weapon.getDamage();
                 applier.apply(entity);
             }
         }

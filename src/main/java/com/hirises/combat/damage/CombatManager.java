@@ -1,29 +1,30 @@
-package com.hirises.combat.damage.impl;
+package com.hirises.combat.damage;
 
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
-import com.hirises.combat.damage.AbstractCombatManager;
-import com.hirises.combat.damage.WeaponData;
+import com.hirises.combat.damage.data.DamageTag;
+import com.hirises.combat.damage.data.DefencePenetrate;
+import com.hirises.combat.damage.data.WeaponData;
 import com.hirises.core.armorstand.ArmorStandWrapper;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
-import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.List;
 
-public class SimpleCombatManager extends AbstractCombatManager {
-    @Override
-    public void damage(LivingEntity entity, double damage) {
+
+public class CombatManager {
+    public final static int DAMAGE_MODIFIER = 10;
+
+    public static void damage(LivingEntity entity, double damage) {
         if(!NBTTagStore.containKey(entity, Keys.Current_Health.toString())){
             NBTTagStore.set(entity, Keys.Current_Health.toString(), getMaxHealth(entity));
         }
@@ -37,8 +38,7 @@ public class SimpleCombatManager extends AbstractCombatManager {
         applyHealth(entity);
     }
 
-    @Override
-    public void heal(LivingEntity entity, double heal) {
+    public static void heal(LivingEntity entity, double heal) {
         if(!NBTTagStore.containKey(entity, Keys.Current_Health.toString())){
             return;
         }
@@ -50,40 +50,41 @@ public class SimpleCombatManager extends AbstractCombatManager {
         NBTTagStore.set(entity, Keys.Current_Health.toString(), health);
         applyHealth(entity);
         if(ConfigManager.useDamageMeter && heal > 0){
-            ((SimpleCombatManager) AdvancedCombat.getCombatManager()).spawnDamageMeter(entity.getEyeLocation(),
-                    ConfigManager.damageMeterData.getHealMeterString(heal));
+            spawnDamageMeter(entity.getEyeLocation(), ConfigManager.damageMeterData.getHealMeterString(heal));
         }
     }
 
-    public void applyHealth(LivingEntity entity){
+    public static void applyHealth(LivingEntity entity){
         if(entity == null){
             return;
         }
         entity.setHealth(NBTTagStore.get(entity, Keys.Current_Health.toString(), Double.class) / DAMAGE_MODIFIER);
     }
 
-    public double getMaxHealth(LivingEntity entity){
+    public static double getMaxHealth(LivingEntity entity){
         return entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * DAMAGE_MODIFIER;
     }
 
-    public int getDefence(LivingEntity entity, SimpleDamageTag tag){
+    public static int getDefence(LivingEntity entity, DamageTag tag, List<DefencePenetrate> penetrates){
+        EntityEquipment equipment = entity.getEquipment();
+
         return 0;
     }
 
-    public int getWeight(LivingEntity entity){
+    public static int getWeight(LivingEntity entity){
         EntityEquipment equipment = entity.getEquipment();
         return getWeight(equipment.getItemInMainHand(), equipment.getHelmet(),
                 equipment.getChestplate(), equipment.getLeggings(), equipment.getBoots());
     }
 
-    public int getWeight(ItemStack weapon, ItemStack helmet, ItemStack chest, ItemStack leggings, ItemStack boots){
+    public static int getWeight(ItemStack weapon, ItemStack helmet, ItemStack chest, ItemStack leggings, ItemStack boots){
         int weight = 0;
         if(ItemUtil.isExist(weapon))
             weight += getWeaponData(weapon.getType()).getWeight();
         return weight;
     }
 
-    public void spawnDamageMeter(Location loc, String string){
+    public static void spawnDamageMeter(Location loc, String string){
         ArmorStandWrapper meter = ArmorStandWrapper.getInstance(
                 loc.add(Vector.getRandom().add(new Vector(-0.5, 0, -0.5)))
         );
@@ -95,7 +96,7 @@ public class SimpleCombatManager extends AbstractCombatManager {
         }, ConfigManager.damageMeterData.duration());
     }
 
-    public WeaponData getWeaponData(LivingEntity entity){
+    public static WeaponData getWeaponData(LivingEntity entity){
         ItemStack weapon = entity.getEquipment().getItemInMainHand();
         if(!ItemUtil.isExist(weapon)){
             return ConfigManager.bearHand;
@@ -103,7 +104,7 @@ public class SimpleCombatManager extends AbstractCombatManager {
         return getWeaponData(weapon.getType());
     }
 
-    public WeaponData getWeaponData(Material weapon){
+    public static WeaponData getWeaponData(Material weapon){
         WeaponData output = ConfigManager.weaponDataMap.get(weapon);
         if(output == null){
             return ConfigManager.bearHand;
