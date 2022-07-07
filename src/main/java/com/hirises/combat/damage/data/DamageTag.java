@@ -10,7 +10,7 @@ public class DamageTag implements DataUnit {
         Normal,
         Physics,
         Magic,
-        Const,
+        Const,  //방깍시 전부 해당
         ;
     }
     public enum DamageType{

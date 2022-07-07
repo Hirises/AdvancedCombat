@@ -1,6 +1,7 @@
 package com.hirises.combat.config;
 
 import com.hirises.combat.AdvancedCombat;
+import com.hirises.combat.damage.data.ArmorData;
 import com.hirises.combat.damage.data.WeaponData;
 import com.hirises.combat.damage.data.DamageTag;
 import com.hirises.core.data.TimeUnit;
@@ -68,6 +69,7 @@ public class ConfigManager {
     public static DamageMeterData damageMeterData;
     public static WeaponData bearHand;
     public static Map<Material, WeaponData> weaponDataMap;
+    public static Map<Material, ArmorData> armorDataMap;
     public record WeightData(
         int normalSpeedRate,
         int maxWeight,
@@ -119,6 +121,11 @@ public class ConfigManager {
             }
 
             weaponDataMap.put(Material.valueOf(key), settings.getOrDefault(new WeaponData(), "무기." + key));
+        }
+
+        armorDataMap = new HashMap<>();
+        for (String key : settings.getKeys("갑옷")) {
+            armorDataMap.put(Material.valueOf(key), settings.getOrDefault(new ArmorData(), "갑옷." + key));
         }
     }
 }

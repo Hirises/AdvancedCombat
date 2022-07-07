@@ -37,3 +37,13 @@
       2:
         데미지: 9
         속성: "Magic"
+갑옷:
+  DIAMOND_CHESTPLATE:
+    무게: 24
+    방어:
+      1:
+        방어: 40
+        속성: "Normal"
+      2:
+        방어: 12
+        속성: "Physics"

@@ -3,6 +3,7 @@ package com.hirises.combat.damage;
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
+import com.hirises.combat.damage.data.ArmorData;
 import com.hirises.combat.damage.data.DamageTag;
 import com.hirises.combat.damage.data.DefencePenetrate;
 import com.hirises.combat.damage.data.WeaponData;
@@ -67,7 +68,10 @@ public class CombatManager {
 
     public static int getDefence(LivingEntity entity, DamageTag tag, List<DefencePenetrate> penetrates){
         EntityEquipment equipment = entity.getEquipment();
-
+        int defence = 0;
+        if(ItemUtil.isExist(equipment.getHelmet())){
+            defence += getArmorData(equipment.getHelmet().getType()).getFinalDefence(null);
+        }
         return 0;
     }
 
@@ -79,8 +83,9 @@ public class CombatManager {
 
     public static int getWeight(ItemStack weapon, ItemStack helmet, ItemStack chest, ItemStack leggings, ItemStack boots){
         int weight = 0;
-        if(ItemUtil.isExist(weapon))
+        if(ItemUtil.isExist(weapon)){
             weight += getWeaponData(weapon.getType()).getWeight();
+        }
         return weight;
     }
 
@@ -108,6 +113,14 @@ public class CombatManager {
         WeaponData output = ConfigManager.weaponDataMap.get(weapon);
         if(output == null){
             return ConfigManager.bearHand;
+        }
+        return output;
+    }
+
+    public static ArmorData getArmorData(Material armor){
+        ArmorData output = ConfigManager.armorDataMap.get(armor);
+        if(output == null){
+            return new ArmorData();
         }
         return output;
     }

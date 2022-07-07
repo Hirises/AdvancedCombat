@@ -4,7 +4,7 @@ import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 
 public class DefencePenetrate implements DataUnit {
-    private double rate;
+    private double rate;    //0.2, 0.3 같은 형식. '깍을' 수치이다. 실제 적용시 '1-rate'로 사용
     private DamageTag damageTag;
 
     public DefencePenetrate(){
@@ -23,6 +23,14 @@ public class DefencePenetrate implements DataUnit {
 
     public double getRate() {
         return rate;
+    }
+
+    public double reduceDefence(double defence, DamageTag damageTag){
+        if(damageTag.getAttackType().equals(DamageTag.AttackType.Const)
+                || damageTag.getAttackType().equals(damageTag.getAttackType())){
+            return defence * (1 - rate);
+        }
+        return defence;
     }
 
     @Override

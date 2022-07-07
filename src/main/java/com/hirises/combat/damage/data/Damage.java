@@ -1,6 +1,5 @@
 package com.hirises.combat.damage.data;
 
-import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.damage.CombatManager;
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
@@ -26,7 +25,7 @@ public class Damage implements DataUnit {
         if(damageTag.equalAttackType(DamageTag.AttackType.Const)){
             return damage;
         }
-        return (damage * 100) / (((CombatManager) AdvancedCombat.getCombatManager()).getDefence(entity, damageTag, penetrates) + 100);
+        return (damage * 100) / CombatManager.getDefence(entity, damageTag, penetrates) + 100;
     }
 
     public DamageTag getDamageTag() {
