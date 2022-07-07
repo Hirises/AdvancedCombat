@@ -2,13 +2,21 @@ package com.hirises.combat.damage.impl;
 
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
+import com.hirises.core.data.unit.DataUnit;
+import com.hirises.core.store.YamlStore;
+import com.hirises.core.util.Util;
 import org.bukkit.entity.LivingEntity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SimpleDamageApplier {
+public class SimpleDamageApplier implements DataUnit {
     private List<SimpleDamage> damages;
+
+    public SimpleDamageApplier(){
+        this.damages = new ArrayList<>();
+    }
 
     public SimpleDamageApplier(double damage, SimpleDamageTag damageTag){
         this(Arrays.asList(new SimpleDamage(damage, damageTag)));
@@ -50,5 +58,31 @@ public class SimpleDamageApplier {
                 }
             }
         }
+    }
+
+    @Override
+    public void load(YamlStore yml, String root) {
+        this.damages = new ArrayList<>();
+        for(String key : yml.getKeys(root)){
+            damages.add(yml.getOrDefault(new SimpleDamage(), root + "." + key));
+        }
+    }
+
+    @Override
+    public void save(YamlStore yml, String root) {
+        //No Use
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("[");
+        for(SimpleDamage damage : damages){
+            builder.append(damage.toString());
+            builder.append(", ");
+        }
+        builder.append("]");
+        return "SimpleDamageApplier{" +
+                "damages=" + builder +
+                '}';
     }
 }

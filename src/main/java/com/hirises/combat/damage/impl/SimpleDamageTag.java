@@ -1,8 +1,11 @@
 package com.hirises.combat.damage.impl;
 
+import com.hirises.core.data.unit.DataUnit;
+import com.hirises.core.store.YamlStore;
+
 import java.util.EnumSet;
 
-public class SimpleDamageTag{
+public class SimpleDamageTag implements DataUnit {
     public enum AttackType{
         Normal,
         Physics,
@@ -19,6 +22,10 @@ public class SimpleDamageTag{
 
     private AttackType attackType;
     private EnumSet<DamageType> damageTypes;
+
+    public SimpleDamageTag(){
+        this(AttackType.Normal);
+    }
 
     public SimpleDamageTag(AttackType attackType){
         this(attackType, EnumSet.noneOf(DamageType.class));
@@ -59,5 +66,19 @@ public class SimpleDamageTag{
 
     public boolean equalAttackType(AttackType attackType){
         return this.attackType == attackType;
+    }
+
+    @Override
+    public void load(YamlStore yml, String root) {
+        this.attackType = AttackType.valueOf(yml.getToString(root + ".속성"));
+        this.damageTypes = EnumSet.noneOf(DamageType.class);
+        for(String element : yml.getConfig().getStringList(root + ".타입")){
+            damageTypes.add(DamageType.valueOf(element));
+        }
+    }
+
+    @Override
+    public void save(YamlStore yml, String root) {
+        //No Use
     }
 }

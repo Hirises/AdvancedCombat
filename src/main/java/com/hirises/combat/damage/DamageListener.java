@@ -1,20 +1,34 @@
 package com.hirises.combat.damage;
 
 import com.hirises.combat.AdvancedCombat;
+import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.damage.impl.SimpleCombatManager;
 import com.hirises.combat.damage.impl.SimpleDamageApplier;
 import com.hirises.combat.damage.impl.SimpleDamageTag;
 import com.hirises.core.util.Util;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 public class DamageListener implements Listener {
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event){
+        Player player = event.getPlayer();
+        player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(ConfigManager.bearHand.getAttackSpeed());
+        player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(
+                player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getBaseValue()
+                        * (ConfigManager.weightData.normalSpeedRate() / 100.0)
+        );
+    }
 
     @EventHandler
     public void onEntityHeal(EntityRegainHealthEvent event){
@@ -35,8 +49,7 @@ public class DamageListener implements Listener {
                 case ENTITY_SWEEP_ATTACK: //휘칼
                 case PROJECTILE: //화살
                     //데미지 따로 계산
-                    applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Physics));
-                    applier.apply(entity, AbstractCombatManager.DAMAGE_MODIFIER);
+                    event.setDamage(0);
                     return;
                 case THORNS: //가시
                     event.setCancelled(true);
@@ -85,8 +98,19 @@ public class DamageListener implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event){
-        if(event.getEntity().getType().equals(EntityType.PLAYER)){
-
+        if(event.getEntity() instanceof LivingEntity){
+            LivingEntity entity = (LivingEntity) event.getEntity();
+            if(event.getDamager() instanceof Projectile){
+                event.setDamage(0);
+                SimpleDamageApplier applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Physics));
+                applier.apply(entity, AbstractCombatManager.DAMAGE_MODIFIER);
+            }else if(event.getDamager() instanceof LivingEntity){
+                event.setDamage(0);
+                LivingEntity damager = (LivingEntity) event.getDamager();
+                WeaponData weapon = ((SimpleCombatManager) AdvancedCombat.getCombatManager()).getWeaponData(damager);
+                SimpleDamageApplier applier = weapon.getDamage();
+                applier.apply(entity);
+            }
         }
     }
 }

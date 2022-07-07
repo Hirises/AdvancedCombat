@@ -4,12 +4,18 @@ import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.AbstractCombatManager;
+import com.hirises.combat.damage.WeaponData;
 import com.hirises.core.armorstand.ArmorStandWrapper;
 import com.hirises.core.store.NBTTagStore;
+import com.hirises.core.util.ItemUtil;
+import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 
@@ -72,5 +78,17 @@ public class SimpleCombatManager extends AbstractCombatManager {
         Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
             meter.get().remove();
         }, ConfigManager.damageMeterData.duration());
+    }
+
+    public WeaponData getWeaponData(LivingEntity entity){
+        ItemStack weapon = entity.getEquipment().getItemInMainHand();
+        if(!ItemUtil.isExist(weapon)){
+            return ConfigManager.bearHand;
+        }
+        WeaponData output = ConfigManager.weaponDataMap.get(weapon.getType());
+        if(output == null){
+            return ConfigManager.bearHand;
+        }
+        return output;
     }
 }

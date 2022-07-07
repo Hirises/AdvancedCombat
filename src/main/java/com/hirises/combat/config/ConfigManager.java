@@ -1,10 +1,15 @@
 package com.hirises.combat.config;
 
 import com.hirises.combat.AdvancedCombat;
+import com.hirises.combat.damage.WeaponData;
 import com.hirises.combat.damage.impl.SimpleDamageTag;
 import com.hirises.core.data.TimeUnit;
 import com.hirises.core.store.YamlStore;
 import com.hirises.core.util.Util;
+import org.bukkit.Material;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConfigManager {
     public final static YamlStore config = new YamlStore(AdvancedCombat.getInst(), "config.yml");
@@ -26,7 +31,8 @@ public class ConfigManager {
       String fireSymbol,
       String projectileSymbol,
       String explosionSymbol
-    ) {
+    )
+    {
         public String getHealMeterString(double heal){
             return Util.remapStrings(format, Util.toRemap(
                     "color",  healColor,
@@ -62,6 +68,22 @@ public class ConfigManager {
         }
     }
     public static DamageMeterData damageMeterData;
+    public static WeaponData bearHand;
+    public static Map<Material, WeaponData> weaponDataMap;
+    public record WeightData(
+        int normalSpeedRate,
+        int maxWeight,
+        double speedRatePerWeight
+    )
+    {
+        public double getSpeedRate(int weight){
+            if(weight > maxWeight){
+                weight = maxWeight;
+            }
+            return normalSpeedRate - (speedRatePerWeight * weight);
+        }
+    }
+    public static WeightData weightData;
 
     public static void init(){
         config.load(false);
@@ -88,6 +110,22 @@ public class ConfigManager {
                             Util.remapColor(settings.getToString("데미지미터기.심볼.원거리")),
                             Util.remapColor(settings.getToString("데미지미터기.심볼.폭발"))
                     );
+                }
+
+                weightData = new WeightData(
+                        settings.get(Integer.class, "무게.기본이속"),
+                        settings.get(Integer.class, "무게.최대무게"),
+                        settings.getToNumber("무게.무게당이속감소")
+                );
+
+                bearHand = settings.getOrDefault(new WeaponData(), "무기.맨손");
+                weaponDataMap = new HashMap<>();
+                for(String key : settings.getKeys("무기")){
+                    if(key.equalsIgnoreCase("맨손")){
+                        continue;
+                    }
+
+                    weaponDataMap.put(Material.valueOf(key), settings.getOrDefault(new WeaponData(), "무기." + key));
                 }
                 break;
             }
