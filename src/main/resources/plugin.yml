@@ -4,3 +4,4 @@ main: com.hirises.combat.AdvancedCombat
 api-version: 1.19
 depend:
   - Core1.19
+  - NBTAPI

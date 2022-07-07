@@ -1,7 +1,6 @@
 package com.hirises.combat.damage.impl;
 
 import com.hirises.combat.AdvancedCombat;
-import com.hirises.combat.damage.EntityDamageApplyEvent;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.Arrays;
@@ -35,11 +34,10 @@ public class SimpleDamageApplier {
     }
 
     public void apply(LivingEntity entity){
-        EntityDamageApplyEvent event = new EntityDamageApplyEvent(entity, this);
-        if(event.isCanceled()){
-            return;
-        }else{
-            AdvancedCombat.getCombatManager().damage(entity, getFinalDamage(entity));
-        }
+        AdvancedCombat.getCombatManager().damage(entity, getFinalDamage(entity));
+    }
+
+    public void applyModified(LivingEntity entity){
+        AdvancedCombat.getCombatManager().damage(entity, getFinalDamage(entity) * SimpleCombatManager.DAMAGE_MODIFIER);
     }
 }

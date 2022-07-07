@@ -1,11 +1,10 @@
 package com.hirises.combat.damage;
 
 import com.hirises.combat.AdvancedCombat;
-import com.hirises.combat.damage.impl.SimpleDamage;
+import com.hirises.combat.damage.impl.SimpleCombatManager;
 import com.hirises.combat.damage.impl.SimpleDamageApplier;
 import com.hirises.combat.damage.impl.SimpleDamageTag;
 import com.hirises.core.util.Util;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -13,8 +12,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 
 public class DamageListener implements Listener {
+
+    @EventHandler
+    public void onEntityHeal(EntityRegainHealthEvent event){
+        if(event.getEntity() instanceof LivingEntity){
+            LivingEntity entity = (LivingEntity) event.getEntity();
+            AdvancedCombat.getCombatManager().heal(entity, event.getAmount() * SimpleCombatManager.DAMAGE_MODIFIER);
+            event.setAmount(0);
+        }
+    }
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event){
@@ -27,6 +36,8 @@ public class DamageListener implements Listener {
                 case PROJECTILE:
                 case THORNS: //가시
                     //데미지 따로 계산
+                    applier = new SimpleDamageApplier(event.getFinalDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Physics));
+                    applier.applyModified(entity);
                     return;
                 case FALL:
                     //낙하
@@ -65,7 +76,8 @@ public class DamageListener implements Listener {
                     applier = new SimpleDamageApplier(event.getFinalDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Const));
                     break;
             }
-            applier.apply(entity);
+            applier.applyModified(entity);
+            event.setDamage(0);
         }
     }
 
