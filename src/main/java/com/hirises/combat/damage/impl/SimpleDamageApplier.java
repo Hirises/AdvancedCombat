@@ -1,6 +1,7 @@
 package com.hirises.combat.damage.impl;
 
 import com.hirises.combat.AdvancedCombat;
+import com.hirises.combat.config.ConfigManager;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.Arrays;
@@ -34,10 +35,20 @@ public class SimpleDamageApplier {
     }
 
     public void apply(LivingEntity entity){
-        AdvancedCombat.getCombatManager().damage(entity, getFinalDamage(entity));
+        apply(entity, 1);
     }
 
-    public void applyModified(LivingEntity entity){
-        AdvancedCombat.getCombatManager().damage(entity, getFinalDamage(entity) * SimpleCombatManager.DAMAGE_MODIFIER);
+    public void apply(LivingEntity entity, double amplification){
+        AdvancedCombat.getCombatManager().damage(entity, getFinalDamage(entity) * amplification);
+
+        if(ConfigManager.useDamageMeter){
+            for(SimpleDamage damage : damages){
+                double splitDamage = damage.getFinalDamage(entity) * amplification;
+                if(splitDamage > 0){
+                    ((SimpleCombatManager) AdvancedCombat.getCombatManager()).spawnDamageMeter(entity.getEyeLocation(),
+                            ConfigManager.damageMeterData.getDamageMeterString(damage.getDamageTag(), splitDamage));
+                }
+            }
+        }
     }
 }
