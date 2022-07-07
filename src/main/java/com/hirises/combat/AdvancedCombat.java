@@ -18,9 +18,13 @@ public final class AdvancedCombat extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         plugin = this;
-        combatManager = new SimpleCombatManager();
 
         ConfigManager.init();
+        switch (ConfigManager.mode){
+            default: {
+                combatManager = new SimpleCombatManager();
+            }
+        }
 
         Bukkit.getPluginManager().registerEvents(new ItemListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new CustomItemManager(), plugin);
