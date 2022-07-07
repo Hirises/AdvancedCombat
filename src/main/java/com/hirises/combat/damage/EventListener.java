@@ -118,6 +118,14 @@ public class EventListener implements Listener {
                 SimpleDamageApplier applier = new SimpleDamageApplier(event.getDamage(), new SimpleDamageTag(SimpleDamageTag.AttackType.Physics));
                 applier.apply(entity, AbstractCombatManager.DAMAGE_MODIFIER);
             }else if(event.getDamager() instanceof LivingEntity){
+                if(event.getDamager() instanceof Player){
+                    Player player = (Player) event.getDamager();
+                    WeaponData weapon = ((SimpleCombatManager) AdvancedCombat.getCombatManager()).getWeaponData(player);
+                    if(entity.getLocation().distanceSquared(player.getLocation()) > weapon.getReach() * weapon.getReach()){
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
                 event.setDamage(0);
                 LivingEntity damager = (LivingEntity) event.getDamager();
                 WeaponData weapon = ((SimpleCombatManager) AdvancedCombat.getCombatManager()).getWeaponData(damager);
