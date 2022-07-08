@@ -2,11 +2,10 @@ package com.hirises.combat.damage.data;
 
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
-import com.hirises.core.util.Util;
 
 import java.util.List;
 
-public class Defence implements DataUnit {
+public class Defence implements DataUnit, IHasDamageTagValue {
     private double defence;
     private DamageTag damageTag;
 
@@ -20,8 +19,14 @@ public class Defence implements DataUnit {
         this.damageTag = damageTag;
     }
 
+    @Override
     public DamageTag getDamageTag() {
         return damageTag;
+    }
+
+    @Override
+    public double getValue() {
+        return defence;
     }
 
     public double getDefence() {
@@ -48,5 +53,13 @@ public class Defence implements DataUnit {
     @Override
     public void save(YamlStore yamlStore, String s) {
         //No Use
+    }
+
+    @Override
+    public String toString() {
+        return "Defence{" +
+                "defence=" + defence +
+                ", damageTag=" + damageTag +
+                '}';
     }
 }

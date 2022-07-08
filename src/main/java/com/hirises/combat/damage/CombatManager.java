@@ -71,16 +71,16 @@ public class CombatManager {
         EntityEquipment equipment = entity.getEquipment();
         double defence = 0;
         if(ItemUtil.isExist(equipment.getHelmet())){
-            defence += getArmorData(equipment.getHelmet().getType()).getFinalDefence(tag, penetrates);
+            defence += getArmorData(equipment.getHelmet()).getFinalDefence(tag, penetrates);
         }
         if(ItemUtil.isExist(equipment.getChestplate())){
-            defence += getArmorData(equipment.getChestplate().getType()).getFinalDefence(tag, penetrates);
+            defence += getArmorData(equipment.getChestplate()).getFinalDefence(tag, penetrates);
         }
         if(ItemUtil.isExist(equipment.getLeggings())){
-            defence += getArmorData(equipment.getLeggings().getType()).getFinalDefence(tag, penetrates);
+            defence += getArmorData(equipment.getLeggings()).getFinalDefence(tag, penetrates);
         }
         if(ItemUtil.isExist(equipment.getBoots())){;
-            defence += getArmorData(equipment.getBoots().getType()).getFinalDefence(tag, penetrates);
+            defence += getArmorData(equipment.getBoots()).getFinalDefence(tag, penetrates);
         }
         return defence;
     }
@@ -94,19 +94,19 @@ public class CombatManager {
     public static int getWeight(ItemStack weapon, ItemStack helmet, ItemStack chest, ItemStack leggings, ItemStack boots){
         int weight = 0;
         if(ItemUtil.isExist(weapon)){
-            weight += getWeaponData(weapon.getType()).getWeight();
+            weight += getWeaponData(weapon).getWeight();
         }
         if(ItemUtil.isExist(helmet)){
-            weight += getArmorData(helmet.getType()).getWeight();
+            weight += getArmorData(helmet).getWeight();
         }
         if(ItemUtil.isExist(chest)){
-            weight += getArmorData(chest.getType()).getWeight();
+            weight += getArmorData(chest).getWeight();
         }
         if(ItemUtil.isExist(leggings)){
-            weight += getArmorData(leggings.getType()).getWeight();
+            weight += getArmorData(leggings).getWeight();
         }
         if(ItemUtil.isExist(boots)){
-            weight += getArmorData(boots.getType()).getWeight();
+            weight += getArmorData(boots).getWeight();
         }
         return weight;
     }
@@ -123,24 +123,32 @@ public class CombatManager {
         }, ConfigManager.damageMeterData.duration());
     }
 
+    public static boolean hasWeaponData(ItemStack weapon){
+        return ConfigManager.weaponDataMap.containsKey(weapon.getType());
+    }
+
+    public static boolean hasArmorData(ItemStack armor){
+        return ConfigManager.armorDataMap.containsKey(armor.getType());
+    }
+
     public static WeaponData getWeaponData(LivingEntity entity){
         ItemStack weapon = entity.getEquipment().getItemInMainHand();
         if(!ItemUtil.isExist(weapon)){
             return ConfigManager.bearHand;
         }
-        return getWeaponData(weapon.getType());
+        return getWeaponData(weapon);
     }
 
-    public static WeaponData getWeaponData(Material weapon){
-        WeaponData output = ConfigManager.weaponDataMap.get(weapon);
+    public static WeaponData getWeaponData(ItemStack weapon){
+        WeaponData output = ConfigManager.weaponDataMap.get(weapon.getType());
         if(output == null){
             return ConfigManager.bearHand;
         }
         return output;
     }
 
-    public static ArmorData getArmorData(Material armor){
-        ArmorData output = ConfigManager.armorDataMap.get(armor);
+    public static ArmorData getArmorData(ItemStack armor){
+        ArmorData output = ConfigManager.armorDataMap.get(armor.getType());
         if(output == null){
             return new ArmorData();
         }

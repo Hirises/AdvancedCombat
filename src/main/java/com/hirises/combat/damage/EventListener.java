@@ -93,7 +93,7 @@ public class EventListener implements Listener {
     public void armorCheck(PlayerInteractEvent event){
         Player player = event.getPlayer();
         if(event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
-            if(ItemUtil.isExist(event.getItem()) && CombatManager.getArmorData(event.getItem().getType()) != null){
+            if(ItemUtil.isExist(event.getItem()) && CombatManager.getArmorData(event.getItem()) != null){
                 Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
                     double speedRate = ConfigManager.weightData.getSpeedRate(CombatManager.getWeight(player));
                     player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
@@ -182,7 +182,7 @@ public class EventListener implements Listener {
                 WeaponData weapon = CombatManager.getWeaponData(damager);
                 if(event.getDamager() instanceof Player){
                     Player player = (Player) event.getDamager();
-                    if(entity.getLocation().distanceSquared(player.getLocation()) > weapon.getReach() * weapon.getReach()){
+                    if(entity.getLocation().distanceSquared(player.getLocation()) > weapon.getAttackDistance() * weapon.getAttackDistance()){
                         event.setCancelled(true);
                         return;
                     }

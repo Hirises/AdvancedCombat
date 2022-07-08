@@ -40,6 +40,24 @@ public class DamageTag implements DataUnit {
         this.damageTypes = damageTypes;
     }
 
+    public int getDamageTypeFlag(){
+        int flag = 0;
+        for(DamageType type : damageTypes){
+            flag |= (1 << type.ordinal());
+        }
+        return flag;
+    }
+
+    public static EnumSet<DamageType> getDamageTypeFromFlag(int flag){
+        EnumSet<DamageType> output = EnumSet.noneOf(DamageType.class);
+        for(DamageType type : DamageType.values()){
+            if((flag & (1 << type.ordinal())) != 0){
+                output.add(type);
+            }
+        }
+        return output;
+    }
+
     public AttackType getAttackType() {
         return attackType;
     }

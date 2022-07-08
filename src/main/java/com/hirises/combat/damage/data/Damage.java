@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 
 import java.util.List;
 
-public class Damage implements DataUnit {
+public class Damage implements DataUnit, IHasDamageTagValue {
     private double damage;
     private DamageTag damageTag;
 
@@ -28,8 +28,14 @@ public class Damage implements DataUnit {
         return (damage * 100) / (CombatManager.getDefence(entity, damageTag, penetrates) + 100);
     }
 
+    @Override
     public DamageTag getDamageTag() {
         return damageTag;
+    }
+
+    @Override
+    public double getValue() {
+        return damage;
     }
 
     @Override

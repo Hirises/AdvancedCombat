@@ -49,4 +49,18 @@ public class ArmorData implements DataUnit {
     public void save(YamlStore yamlStore, String s) {
         //No Use
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder1 = new StringBuilder("[");
+        for(Defence damage : defences){
+            builder1.append(damage.toString());
+            builder1.append(", ");
+        }
+        builder1.append("]");
+        return "ArmorData{" +
+                "defences=" + builder1 +
+                ", weight=" + weight +
+                '}';
+    }
 }
