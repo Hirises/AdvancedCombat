@@ -5,17 +5,21 @@ import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.damage.data.DamageApplier;
 import com.hirises.combat.damage.data.DamageTag;
 import com.hirises.combat.damage.data.WeaponData;
+import com.hirises.core.util.ItemUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
 
 public class EventListener implements Listener {
@@ -40,6 +44,62 @@ public class EventListener implements Listener {
                                 equipment.getLeggings(), equipment.getBoots())
         );
         player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event){
+        Player player = event.getPlayer();
+        double speedRate = ConfigManager.weightData.getSpeedRate(CombatManager.getWeight(player));
+        player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+    }
+
+    @EventHandler
+    public void onItemSwap(PlayerSwapHandItemsEvent event){
+        Player player = event.getPlayer();
+        Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
+            double speedRate = ConfigManager.weightData.getSpeedRate(CombatManager.getWeight(player));
+            player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+        }, 1);
+    }
+
+    @EventHandler
+    public void onItemDrop(PlayerDropItemEvent event){
+        Player player = event.getPlayer();
+        Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
+            double speedRate = ConfigManager.weightData.getSpeedRate(CombatManager.getWeight(player));
+            player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+        }, 1);
+    }
+
+    @EventHandler
+    public void onItemPickUp(EntityPickupItemEvent event){
+        if(event.getEntity() instanceof Player){
+            Player player = (Player) event.getEntity();
+            Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
+                double speedRate = ConfigManager.weightData.getSpeedRate(CombatManager.getWeight(player));
+                player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+            }, 1);
+        }
+    }
+
+    @EventHandler
+    public void armorCheck(InventoryCloseEvent event){
+        Player player = (Player) event.getPlayer();
+        double speedRate = ConfigManager.weightData.getSpeedRate(CombatManager.getWeight(player));
+        player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+    }
+
+    @EventHandler
+    public void armorCheck(PlayerInteractEvent event){
+        Player player = event.getPlayer();
+        if(event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
+            if(ItemUtil.isExist(event.getItem()) && CombatManager.getArmorData(event.getItem().getType()) != null){
+                Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
+                    double speedRate = ConfigManager.weightData.getSpeedRate(CombatManager.getWeight(player));
+                    player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+                }, 1);
+            }
+        }
     }
 
     @EventHandler
