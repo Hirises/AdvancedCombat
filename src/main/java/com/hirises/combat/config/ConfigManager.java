@@ -36,7 +36,7 @@ public class ConfigManager {
             return Util.remapStrings(format, Util.toRemap(
                     "color",  healColor,
                     "symbol", "",
-                    "damage", Util.safeToString(heal)
+                    "damage", Util.safeToString((int)Math.floor(heal))
             ));
         }
 
@@ -62,7 +62,7 @@ public class ConfigManager {
             return Util.remapStrings(format, Util.toRemap(
                     "color",  color,
                     "symbol", symbol,
-                    "damage", Util.safeToString(damage)
+                    "damage", Util.safeToString((int)Math.floor(damage))
             ));
         }
     }

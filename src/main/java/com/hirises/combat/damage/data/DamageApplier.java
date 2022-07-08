@@ -1,6 +1,5 @@
 package com.hirises.combat.damage.data;
 
-import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.damage.CombatManager;
 import com.hirises.core.data.unit.DataUnit;

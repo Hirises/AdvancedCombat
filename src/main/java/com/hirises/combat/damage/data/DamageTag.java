@@ -10,7 +10,7 @@ public class DamageTag implements DataUnit {
         Normal,
         Physics,
         Magic,
-        Const,  //방깍시 전부 해당
+        Const,  //방깍시 전부 해당, 방어시 전부 해당 X
         ;
     }
     public enum DamageType{
@@ -66,6 +66,34 @@ public class DamageTag implements DataUnit {
 
     public boolean equalAttackType(AttackType attackType){
         return this.attackType == attackType;
+    }
+
+    public boolean checkDefenceType(DamageTag damageTag){
+        if(damageTag.equalAttackType(AttackType.Const)){
+            return false;
+        }
+        if(damageTag.equalAttackType(this.attackType) || this.attackType == AttackType.Normal){
+            if(this.damageTypes.size() > 0){
+                return damageTag.getDamageTypes().containsAll(this.damageTypes);
+            }else {
+                return true;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public boolean checkDefencePenetrateType(DamageTag damageTag){
+        if(damageTag.getAttackType().equals(DamageTag.AttackType.Const)
+                || damageTag.getAttackType().equals(this.attackType)){
+            if(damageTag.getDamageTypes().size() > 0){
+                return this.damageTypes.containsAll(damageTag.getDamageTypes());
+            }else {
+                return true;
+            }
+        }else{
+            return false;
+        }
     }
 
     @Override

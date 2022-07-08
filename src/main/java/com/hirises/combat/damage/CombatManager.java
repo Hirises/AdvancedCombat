@@ -10,6 +10,7 @@ import com.hirises.combat.damage.data.WeaponData;
 import com.hirises.core.armorstand.ArmorStandWrapper;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
+import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -66,13 +67,22 @@ public class CombatManager {
         return entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * DAMAGE_MODIFIER;
     }
 
-    public static int getDefence(LivingEntity entity, DamageTag tag, List<DefencePenetrate> penetrates){
+    public static double getDefence(LivingEntity entity, DamageTag tag, List<DefencePenetrate> penetrates){
         EntityEquipment equipment = entity.getEquipment();
-        int defence = 0;
+        double defence = 0;
         if(ItemUtil.isExist(equipment.getHelmet())){
-            defence += getArmorData(equipment.getHelmet().getType()).getFinalDefence(null);
+            defence += getArmorData(equipment.getHelmet().getType()).getFinalDefence(tag, penetrates);
         }
-        return 0;
+        if(ItemUtil.isExist(equipment.getChestplate())){
+            defence += getArmorData(equipment.getChestplate().getType()).getFinalDefence(tag, penetrates);
+        }
+        if(ItemUtil.isExist(equipment.getLeggings())){
+            defence += getArmorData(equipment.getLeggings().getType()).getFinalDefence(tag, penetrates);
+        }
+        if(ItemUtil.isExist(equipment.getBoots())){;
+            defence += getArmorData(equipment.getBoots().getType()).getFinalDefence(tag, penetrates);
+        }
+        return defence;
     }
 
     public static int getWeight(LivingEntity entity){
@@ -85,6 +95,18 @@ public class CombatManager {
         int weight = 0;
         if(ItemUtil.isExist(weapon)){
             weight += getWeaponData(weapon.getType()).getWeight();
+        }
+        if(ItemUtil.isExist(helmet)){
+            weight += getArmorData(helmet.getType()).getWeight();
+        }
+        if(ItemUtil.isExist(chest)){
+            weight += getArmorData(chest.getType()).getWeight();
+        }
+        if(ItemUtil.isExist(leggings)){
+            weight += getArmorData(leggings.getType()).getWeight();
+        }
+        if(ItemUtil.isExist(boots)){
+            weight += getArmorData(boots.getType()).getWeight();
         }
         return weight;
     }
