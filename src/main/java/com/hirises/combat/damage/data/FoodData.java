@@ -31,6 +31,10 @@ public class FoodData implements DataUnit {
         this.coolWith = new ArrayList<>();
     }
 
+    public double getInstantHunger() {
+        return instantHunger;
+    }
+
     public double getInstantHeal() {
         return instantHeal;
     }

@@ -103,11 +103,19 @@ public class ConfigManager {
         String penetrateLine,
         String projectileDamageLine,
         String defenceLine,
+        String foodLine,
         String attributeLine,
 
         String attackSpeedFormat,
         String attackDistanceFormat,
         String weightFormat,
+
+        String maxConsumeAmountFormat,
+        String hungerFormat,
+        String healFormat,
+        String graduallyHealFormat,
+        String healDurationFormat,
+        String coolDownFormat,
 
         String damagePropertiesFormat,
         String fireTag,
@@ -163,6 +171,33 @@ public class ConfigManager {
                     builder.append(penetrateLine);
                     builder.append("/n");
                     builder.append(getIHasDamageTagValueLore(data.getDamage().getPenetrates()));
+                    builder.append("/n");
+                }
+            }
+            if(CombatManager.hasFoodData(item)){
+                builder.append(foodLine);
+                builder.append("/n");
+                FoodData data = CombatManager.getFoodData(item);
+                if(data.getMaxConsumeAmount() > 1){
+                    builder.append(Util.remapString(maxConsumeAmountFormat, "value", Util.safeToString(data.getMaxConsumeAmount())));
+                    builder.append("/n");
+                }
+                if(data.getMaxConsumeAmount() > 1){
+                    builder.append(Util.remapString(hungerFormat, "value", String.format("%.2f", data.getInstantHunger())));
+                    builder.append("/n");
+                }
+                if(data.getInstantHeal() > 0){
+                    builder.append(Util.remapString(healFormat, "value", String.format("%.2f", data.getInstantHeal())));
+                    builder.append("/n");
+                }
+                if(data.getHealPerSecond() > 0){
+                    builder.append(Util.remapString(graduallyHealFormat, "value", String.format("%.2f", data.getHealPerSecond())));
+                    builder.append("/n");
+                    builder.append(Util.remapString(healDurationFormat, "value", String.format("%.1f초", new TimeUnit(data.getHealDuration()).getToSecond())));
+                    builder.append("/n");
+                }
+                if(data.getCoolDown() > 0){
+                    builder.append(Util.remapString(coolDownFormat, "value", String.format("%.1f초", new TimeUnit(data.getCoolDown()).getToSecond())));
                     builder.append("/n");
                 }
             }
@@ -274,11 +309,19 @@ public class ConfigManager {
                     Util.remapColor(settings.getToString("아이템로어.형태.구분선.방어관통")),
                     Util.remapColor(settings.getToString("아이템로어.형태.구분선.발사체")),
                     Util.remapColor(settings.getToString("아이템로어.형태.구분선.방어력")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.구분선.회복")),
                     Util.remapColor(settings.getToString("아이템로어.형태.구분선.속성")),
 
-                    Util.remapColor(settings.getToString("아이템로어.형태.공격속도")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.공격거리")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.무게")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.속성.공격속도")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.속성.공격거리")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.속성.무게")),
+
+                    Util.remapColor(settings.getToString("아이템로어.형태.회복.동시섭취개수")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.회복.허기")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.회복.회복")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.회복.초당회복")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.회복.지속시간")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.회복.쿨타임")),
 
                     Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.전체")),
                     Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.화염")),
