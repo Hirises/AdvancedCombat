@@ -697,3 +697,32 @@
         속성: "Normal"
         타입:
           - "Fire"
+발사체:
+  BOW:
+    데미지:
+      1:
+        데미지: 30
+        속성: "Physics"
+        타입:
+          - "Projectile"
+      2:
+        데미지: 5
+        속성: "Const"
+        타입:
+          - "Projectile"
+  CROSSBOW:
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.5
+          속성: "Const"
+      1:
+        데미지: 30
+        속성: "Physics"
+        타입:
+          - "Projectile"
+      2:
+        데미지: 5
+        속성: "Const"
+        타입:
+          - "Projectile"

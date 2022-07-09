@@ -3,10 +3,7 @@ package com.hirises.combat.damage;
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
-import com.hirises.combat.damage.data.ArmorData;
-import com.hirises.combat.damage.data.DamageTag;
-import com.hirises.combat.damage.data.DefencePenetrate;
-import com.hirises.combat.damage.data.WeaponData;
+import com.hirises.combat.damage.data.*;
 import com.hirises.core.armorstand.ArmorStandWrapper;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
@@ -129,6 +126,27 @@ public class CombatManager {
 
     public static boolean hasArmorData(ItemStack armor){
         return ConfigManager.armorDataMap.containsKey(armor.getType());
+    }
+
+    public static boolean hasProjectileData(ItemStack armor){
+        return ConfigManager.projectileDataMap.containsKey(armor.getType());
+    }
+
+    public static ProjectileData getProjectileData(LivingEntity entity){
+        ItemStack weapon = entity.getEquipment().getItemInMainHand();
+        if(!ItemUtil.isExist(weapon) || !hasProjectileData(weapon)){
+            weapon = entity.getEquipment().getItemInOffHand();
+            return getProjectileData(weapon);
+        }
+        return getProjectileData(weapon);
+    }
+
+    public static ProjectileData getProjectileData(ItemStack weapon){
+        ProjectileData output = ConfigManager.projectileDataMap.get(weapon.getType());
+        if(output == null){
+            return ConfigManager.normalArrow;
+        }
+        return output;
     }
 
     public static WeaponData getWeaponData(LivingEntity entity){

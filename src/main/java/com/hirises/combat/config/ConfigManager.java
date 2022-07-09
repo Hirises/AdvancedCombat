@@ -75,8 +75,10 @@ public class ConfigManager {
     }
     public static DamageMeterData damageMeterData;
     public static WeaponData bearHand;
+    public static ProjectileData normalArrow;
     public static Map<Material, WeaponData> weaponDataMap;
     public static Map<Material, ArmorData> armorDataMap;
+    public static Map<Material, ProjectileData> projectileDataMap;
     public record WeightData(
         int normalSpeedRate,
         int maxWeight,
@@ -150,7 +152,18 @@ public class ConfigManager {
                 attackSpeed = data.getAttackSpeed();
                 attackDistance = data.getAttackDistance();
             }
-            //발사체 데이터
+            if(CombatManager.hasProjectileData(item)){
+                ProjectileData data = CombatManager.getProjectileData(item);
+                builder.append(projectileDamageLine);
+                builder.append("/n");
+                builder.append(getIHasDamageTagValueLore(data.getDamage().getDamages()));
+                if(data.getDamage().getPenetrates().size() > 0){
+                    builder.append(penetrateLine);
+                    builder.append("/n");
+                    builder.append(getIHasDamageTagValueLore(data.getDamage().getPenetrates()));
+                    builder.append("/n");
+                }
+            }
             if(weight > 0 || attackSpeed > 0 || attackDistance > 0){
                 builder.append(attributeLine);
                 builder.append("/n");
@@ -289,7 +302,10 @@ public class ConfigManager {
 
         weaponDataMap = new HashMap<>();
         armorDataMap = new HashMap<>();
+        projectileDataMap = new HashMap<>();
         bearHand = settings.getOrDefault(new WeaponData(), "무기.맨손");
+        normalArrow = settings.getOrDefault(new ProjectileData(), "발사체.기본");
+
         for (String key : settings.getKeys("무기")) {
             if (key.equalsIgnoreCase("맨손")) {
                 continue;
@@ -299,7 +315,7 @@ public class ConfigManager {
             WeaponData data = settings.getOrDefault(new WeaponData(), "무기." + key);
             weaponDataMap.put(mat, data);
 
-            ItemStack item = new ItemStack(mat);
+            ItemStack item = CustomItemManager.hasRegisteredItemReplacement(mat) ? CustomItemManager.getRegisteredItemReplacement(mat) : new ItemStack(mat);
             ItemMeta meta = item.getItemMeta();
             meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED,
                     new AttributeModifier(
@@ -325,7 +341,27 @@ public class ConfigManager {
             armorDataMap.put(mat, data);
 
             if(useItemLore){
-                ItemStack item = new ItemStack(mat);
+                ItemStack item = CustomItemManager.hasRegisteredItemReplacement(mat) ? CustomItemManager.getRegisteredItemReplacement(mat) : new ItemStack(mat);
+                ItemMeta meta = item.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
+                item.setItemMeta(meta);
+
+                CustomItemManager.registerItemReplacement(mat, item);
+            }
+        }
+
+        for (String key : settings.getKeys("발사체")) {
+            if(key.equals("기본")){
+                continue;
+            }
+
+            Material mat = Material.valueOf(key);
+            ProjectileData data = settings.getOrDefault(new ProjectileData(), "발사체." + key);
+            projectileDataMap.put(mat, data);
+
+            if(useItemLore){
+                ItemStack item = CustomItemManager.hasRegisteredItemReplacement(mat) ? CustomItemManager.getRegisteredItemReplacement(mat) : new ItemStack(mat);
                 ItemMeta meta = item.getItemMeta();
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                 meta.setLore(ConfigManager.itemLoreData.getItemLore(item));

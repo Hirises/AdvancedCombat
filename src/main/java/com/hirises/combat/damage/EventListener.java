@@ -5,6 +5,7 @@ import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.data.DamageApplier;
 import com.hirises.combat.damage.data.DamageTag;
+import com.hirises.combat.damage.data.ProjectileData;
 import com.hirises.combat.damage.data.WeaponData;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
@@ -16,10 +17,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
@@ -116,6 +114,18 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onProjectileLaunch(ProjectileLaunchEvent event){
+        Projectile projectile = event.getEntity();
+        if(projectile.getShooter() instanceof LivingEntity){
+            LivingEntity entity = (LivingEntity) projectile.getShooter();
+            ProjectileData data = CombatManager.getProjectileData(entity);
+            NBTTagStore.set(projectile, Keys.Projectile_Damage.toString(), data);
+        }else{
+            NBTTagStore.set(projectile, Keys.Projectile_Damage.toString(), ConfigManager.normalArrow);
+        }
+    }
+
+    @EventHandler
     public void onEntityDamage(EntityDamageEvent event){
         if(event.getEntity() instanceof LivingEntity){
             LivingEntity entity = (LivingEntity) event.getEntity();
@@ -181,8 +191,9 @@ public class EventListener implements Listener {
             LivingEntity entity = (LivingEntity) event.getEntity();
             if(event.getDamager() instanceof Projectile){
                 event.setDamage(0);
-                DamageApplier applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Physics));
-                applier.apply(entity, CombatManager.DAMAGE_MODIFIER);
+                Projectile projectile = (Projectile) event.getDamager();
+                ProjectileData data = NBTTagStore.get(projectile, Keys.Projectile_Damage.toString(), ProjectileData.class);
+                data.getDamage().apply(entity);
             }else if(event.getDamager() instanceof LivingEntity){
                 event.setDamage(0);
                 LivingEntity damager = (LivingEntity) event.getDamager();

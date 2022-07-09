@@ -4,6 +4,7 @@ public enum Keys {
     Item_Checked("combat_item_checked"),
     Current_Health("combat_current_health"),
     Attribute_Modifier("combat_attribute"),
+    Projectile_Damage("combat_projectile_damage")
     ;
 
     private String key;
