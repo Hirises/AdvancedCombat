@@ -39,7 +39,7 @@ public class EventListener implements Listener {
         EntityEquipment equipment = player.getEquipment();
         double speedRate = ConfigManager.weightData.getSpeedRate(
                 CombatManager
-                        .getWeight(player.getInventory().getItem(event.getNewSlot()),
+                        .getWeight(player.getInventory().getItem(event.getNewSlot()), player.getInventory().getItemInOffHand(),
                                 equipment.getHelmet(), equipment.getChestplate(),
                                 equipment.getLeggings(), equipment.getBoots())
         );

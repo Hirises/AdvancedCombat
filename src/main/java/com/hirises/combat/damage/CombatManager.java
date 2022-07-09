@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -79,19 +80,28 @@ public class CombatManager {
         if(ItemUtil.isExist(equipment.getBoots())){;
             defence += getArmorData(equipment.getBoots()).getFinalDefence(tag, penetrates);
         }
+        if(entity instanceof Player){
+            Player player = (Player) entity;
+            if(player.isBlocking()){
+                defence += getArmorData(new ItemStack(Material.SHIELD)).getFinalDefence(tag, penetrates);
+            }
+        }
         return defence;
     }
 
     public static int getWeight(LivingEntity entity){
         EntityEquipment equipment = entity.getEquipment();
-        return getWeight(equipment.getItemInMainHand(), equipment.getHelmet(),
+        return getWeight(equipment.getItemInMainHand(), equipment.getItemInOffHand(), equipment.getHelmet(),
                 equipment.getChestplate(), equipment.getLeggings(), equipment.getBoots());
     }
 
-    public static int getWeight(ItemStack weapon, ItemStack helmet, ItemStack chest, ItemStack leggings, ItemStack boots){
+    public static int getWeight(ItemStack main, ItemStack off, ItemStack helmet, ItemStack chest, ItemStack leggings, ItemStack boots){
         int weight = 0;
-        if(ItemUtil.isExist(weapon)){
-            weight += getWeaponData(weapon).getWeight();
+        if(ItemUtil.isExist(main)){
+            weight += getWeaponData(main).getWeight();
+        }
+        if(ItemUtil.isExist(off)){
+            weight += getWeaponData(off).getWeight();
         }
         if(ItemUtil.isExist(helmet)){
             weight += getArmorData(helmet).getWeight();

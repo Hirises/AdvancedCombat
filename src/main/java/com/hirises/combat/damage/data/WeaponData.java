@@ -16,6 +16,13 @@ public class WeaponData implements DataUnit {
         this.damage = new DamageApplier();
     }
 
+    public WeaponData(double attackDistance, int weight, double attackSpeed, DamageApplier damage){
+        this.attackSpeed = attackSpeed;
+        this.weight = weight;
+        this.attackDistance = attackDistance;
+        this.damage = damage;
+    }
+
     @Override
     public void load(YamlStore yml, String root) {
         this.attackDistance = yml.getToNumber(root + ".리치");

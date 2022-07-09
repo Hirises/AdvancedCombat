@@ -27,6 +27,13 @@ public class DamageApplier implements DataUnit {
         this(damages, new ArrayList<>());
     }
 
+    public DamageApplier(DamageApplier origin){
+        this.damages = new ArrayList<>();
+        this.damages.addAll(origin.damages);
+        this.penetrates = new ArrayList<>();
+        this.penetrates.addAll(origin.penetrates);
+    }
+
     public DamageApplier(List<Damage> damages, List<DefencePenetrate> penetrates){
         this.damages = damages;
         this.penetrates = penetrates;

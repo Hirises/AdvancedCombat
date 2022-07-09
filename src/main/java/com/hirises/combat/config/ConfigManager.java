@@ -76,6 +76,7 @@ public class ConfigManager {
     public static DamageMeterData damageMeterData;
     public static WeaponData bearHand;
     public static ProjectileData normalArrow;
+    public static ArmorData shield;
     public static Map<Material, WeaponData> weaponDataMap;
     public static Map<Material, ArmorData> armorDataMap;
     public static Map<Material, ProjectileData> projectileDataMap;
@@ -370,5 +371,17 @@ public class ConfigManager {
                 CustomItemManager.registerItemReplacement(mat, item);
             }
         }
+
+        shield = settings.getOrDefault(new ArmorData(), "기타.방패");
+        armorDataMap.put(Material.SHIELD, shield);
+        ItemStack item = CustomItemManager.hasRegisteredItemReplacement(Material.SHIELD) ?
+                CustomItemManager.getRegisteredItemReplacement(Material.SHIELD) : new ItemStack(Material.SHIELD);
+        ItemMeta meta = item.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
+        item.setItemMeta(meta);
+        CustomItemManager.registerItemReplacement(Material.SHIELD, item);
+        WeaponData data = new WeaponData(bearHand.getAttackDistance(), shield.getWeight(), bearHand.getAttackDistance(), new DamageApplier(bearHand.getDamage()));
+        weaponDataMap.put(Material.SHIELD, data);
     }
 }
