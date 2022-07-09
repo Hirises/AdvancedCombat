@@ -3,10 +3,7 @@ package com.hirises.combat.damage;
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
-import com.hirises.combat.damage.data.DamageApplier;
-import com.hirises.combat.damage.data.DamageTag;
-import com.hirises.combat.damage.data.ProjectileData;
-import com.hirises.combat.damage.data.WeaponData;
+import com.hirises.combat.damage.data.*;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
 import org.bukkit.Bukkit;
@@ -21,6 +18,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 
 public class EventListener implements Listener {
 
@@ -105,9 +103,34 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onEatFood(PlayerItemConsumeEvent event){
+        ItemStack food = event.getItem();
+        if(ItemUtil.isExist(food) && CombatManager.hasFoodData(food)){
+            FoodData data = CombatManager.getFoodData(food);
+            Player player = event.getPlayer();
+//            event.setCancelled(true);
+//            if(player.getInventory().getItemInMainHand().getType().equals(food.getType())){
+//                ItemUtil.operateAmount(player.getInventory().getItemInMainHand(), -1);
+//            }else{
+//                ItemUtil.operateAmount(player.getInventory().getItemInOffHand(), -1);
+//            }
+            data.eat(player);
+        }
+    }
+
+    @EventHandler
     public void onEntityHeal(EntityRegainHealthEvent event){
         if(event.getEntity() instanceof LivingEntity){
             LivingEntity entity = (LivingEntity) event.getEntity();
+            switch (event.getRegainReason()){
+                case EATING:{
+                    event.setAmount(0);
+                    return;
+                }
+                default: {
+                    break;
+                }
+            }
             CombatManager.heal(entity, event.getAmount() * CombatManager.DAMAGE_MODIFIER);
             event.setAmount(0);
         }

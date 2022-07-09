@@ -142,6 +142,18 @@ public class CombatManager {
         return ConfigManager.projectileDataMap.containsKey(armor.getType());
     }
 
+    public static boolean hasFoodData(ItemStack item){
+        return ConfigManager.foodDataMap.containsKey(item.getType());
+    }
+
+    public static FoodData getFoodData(ItemStack item){
+        FoodData output = ConfigManager.foodDataMap.get(item.getType());
+        if(output == null){
+            return new FoodData();
+        }
+        return output;
+    }
+
     public static ProjectileData getProjectileData(LivingEntity entity){
         ItemStack weapon = entity.getEquipment().getItemInMainHand();
         if(!ItemUtil.isExist(weapon) || !hasProjectileData(weapon)){

@@ -6,7 +6,6 @@ import com.hirises.combat.damage.data.*;
 import com.hirises.combat.item.CustomItemManager;
 import com.hirises.core.data.TimeUnit;
 import com.hirises.core.store.YamlStore;
-import com.hirises.core.util.ItemUtil;
 import com.hirises.core.util.Util;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -73,6 +72,7 @@ public class ConfigManager {
             ));
         }
     }
+    public static int foodDelay;
     public static DamageMeterData damageMeterData;
     public static WeaponData bearHand;
     public static ProjectileData normalArrow;
@@ -80,6 +80,7 @@ public class ConfigManager {
     public static Map<Material, WeaponData> weaponDataMap;
     public static Map<Material, ArmorData> armorDataMap;
     public static Map<Material, ProjectileData> projectileDataMap;
+    public static Map<Material, FoodData> foodDataMap;
     public record WeightData(
         int normalSpeedRate,
         int maxWeight,
@@ -304,6 +305,7 @@ public class ConfigManager {
         weaponDataMap = new HashMap<>();
         armorDataMap = new HashMap<>();
         projectileDataMap = new HashMap<>();
+        foodDataMap = new HashMap<>();
         bearHand = settings.getOrDefault(new WeaponData(), "무기.맨손");
         normalArrow = settings.getOrDefault(new ProjectileData(), "발사체.기본");
 
@@ -365,6 +367,26 @@ public class ConfigManager {
                 ItemStack item = CustomItemManager.hasRegisteredItemReplacement(mat) ? CustomItemManager.getRegisteredItemReplacement(mat) : new ItemStack(mat);
                 ItemMeta meta = item.getItemMeta();
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
+                item.setItemMeta(meta);
+
+                CustomItemManager.registerItemReplacement(mat, item);
+            }
+        }
+
+        for (String key : settings.getKeys("음식")) {
+            if(key.equals("설정")){
+                foodDelay = settings.get(Integer.class, "음식.설정.회복틱");
+                continue;
+            }
+
+            Material mat = Material.valueOf(key);
+            FoodData data = settings.getOrDefault(new FoodData(), "음식." + key);
+            foodDataMap.put(mat, data);
+
+            if(useItemLore){
+                ItemStack item = CustomItemManager.hasRegisteredItemReplacement(mat) ? CustomItemManager.getRegisteredItemReplacement(mat) : new ItemStack(mat);
+                ItemMeta meta = item.getItemMeta();
                 meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
                 item.setItemMeta(meta);
 
