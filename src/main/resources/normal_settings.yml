@@ -24,6 +24,7 @@
     구분선:
       방어력: "&7방어력----------"
       공격력: "&7공격력----------"
+      방어관통: "&7방어관통(%)"
       발사체: "&7발사체----------"
       속성: "&7속성---------"
     공격속도: "&f공격속도: &e{value}"
@@ -44,42 +45,655 @@
         마법: "&9마법 {value}"
         고정: "&f고정 {value}"
         구분: " "
-
 무게:
   최대무게: 100
   무게당이속감소: 0.4
   기본이속: 120
 무기:
   맨손:
-    리치: 2
+    리치: 2.5
     무게: 0
     공속: 2
     데미지:
       1:
         데미지: 10
         속성: "Physics"
-  DIAMOND_SWORD:
+  WOODEN_HOE:
+    공속: 1.6
+    리치: 4
+    무게: 5
+    데미지:
+      1:
+        데미지: 15
+        속성: "Normal"
+  WOODEN_SWORD:
+    공속: 1.5
+    리치: 3.4
+    무게: 5
+    데미지:
+      1:
+        데미지: 18
+        속성: "Normal"
+  WOODEN_SHOVEL:
+    공속: 1.8
     리치: 3
+    무게: 5
+    데미지:
+      1:
+        데미지: 16
+        속성: "Normal"
+  WOODEN_PICKAXE:
+    공속: 4
+    리치: 2.2
+    무게: -5
+    데미지:
+      1:
+        데미지: 10
+        속성: "Normal"
+      2:
+        데미지: 6
+        속성: "Const"
+  WOODEN_AXE:
+    공속: 1
+    리치: 2
     무게: 15
-    공속: 2
     데미지:
       방어관통:
         1:
-          관통률: 0.2
+          관통률: 0.30
+          속성: "Const"
+      1:
+        데미지: 45
+        속성: "Normal"
+  STONE_HOE:
+    공속: 1.28
+    리치: 4
+    무게: 20
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.8
+          속성: "Physics"
+      1:
+        데미지: 20
+        속성: "Physics"
+  STONE_SWORD:
+    공속: 1.2
+    리치: 3.4
+    무게: 20
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.8
+          속성: "Physics"
+      1:
+        데미지: 25
+        속성: "Physics"
+  STONE_SHOVEL:
+    공속: 1.44
+    리치: 3
+    무게: 20
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.8
+          속성: "Physics"
+      1:
+        데미지: 23
+        속성: "Physics"
+  STONE_PICKAXE:
+    공속: 3.2
+    리치: 2.2
+    무게: 10
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.8
+          속성: "Physics"
+      1:
+        데미지: 12
+        속성: "Physics"
+      2:
+        데미지: 8
+        속성: "Const"
+  STONE_AXE:
+    공속: 0.8
+    리치: 2
+    무게: 30
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.30
+          속성: "Const"
+        2:
+          관통률: 0.8
+          속성: "Physics"
+      1:
+        데미지: 60
+        속성: "Physics"
+  IRON_HOE:
+    공속: 1.6
+    리치: 4
+    무게: 15
+    데미지:
+      1:
+        데미지: 20
+        속성: "Physics"
+  IRON_SWORD:
+    공속: 1.5
+    리치: 3.4
+    무게: 15
+    데미지:
+      1:
+        데미지: 25
+        속성: "Physics"
+  IRON_SHOVEL:
+    공속: 1.8
+    리치: 3
+    무게: 15
+    데미지:
+      1:
+        데미지: 23
+        속성: "Physics"
+  IRON_PICKAXE:
+    공속: 4
+    리치: 2.2
+    무게: 5
+    데미지:
+      1:
+        데미지: 12
+        속성: "Physics"
+      2:
+        데미지: 8
+        속성: "Const"
+  IRON_AXE:
+    공속: 1
+    리치: 2
+    무게: 25
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.30
+          속성: "Const"
+      1:
+        데미지: 60
+        속성: "Physics"
+  GOLDEN_HOE:
+    공속: 1.6
+    리치: 4
+    무게: 15
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.8
+          속성: "Magic"
+      1:
+        데미지: 8
+        속성: "Physics"
+      2:
+        데미지: 10
+        속성: "Magic"
+  GOLDEN_SWORD:
+    공속: 1.5
+    리치: 3.4
+    무게: 15
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.8
+          속성: "Magic"
+      1:
+        데미지: 11.25
+        속성: "Physics"
+      2:
+        데미지: 12.5
+        속성: "Magic"
+  GOLDEN_SHOVEL:
+    공속: 1.8
+    리치: 3
+    무게: 15
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.8
+          속성: "Magic"
+      1:
+        데미지: 10
+        속성: "Physics"
+      2:
+        데미지: 11.5
+        속성: "Magic"
+  GOLDEN_PICKAXE:
+    공속: 4
+    리치: 2.2
+    무게: 5
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.8
+          속성: "Magic"
+      1:
+        데미지: 5
+        속성: "Physics"
+      2:
+        데미지: 6
+        속성: "Magic"
+      3:
+        데미지: 8
+        속성: "Const"
+  GOLDEN_AXE:
+    공속: 1
+    리치: 2
+    무게: 25
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.30
+          속성: "Const"
+        2:
+          관통률: 0.8
           속성: "Magic"
       1:
         데미지: 27
         속성: "Physics"
       2:
-        데미지: 9
+        데미지: 27
         속성: "Magic"
+  DIAMOND_HOE:
+    공속: 1.6
+    리치: 4
+    무게: 20
+    데미지:
+      1:
+        데미지: 20
+        속성: "Magic"
+  DIAMOND_SWORD:
+    공속: 1.5
+    리치: 3.4
+    무게: 20
+    데미지:
+      1:
+        데미지: 25
+        속성: "Magic"
+  DIAMOND_SHOVEL:
+    공속: 1.8
+    리치: 3
+    무게: 20
+    데미지:
+      1:
+        데미지: 23
+        속성: "Magic"
+  DIAMOND_PICKAXE:
+    공속: 4
+    리치: 2.2
+    무게: 10
+    데미지:
+      1:
+        데미지: 12
+        속성: "Magic"
+      2:
+        데미지: 8
+        속성: "Const"
+  DIAMOND_AXE:
+    공속: 1
+    리치: 2
+    무게: 30
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.30
+          속성: "Const"
+      1:
+        데미지: 60
+        속성: "Magic"
+  NETHERITE_HOE:
+    공속: 1.28
+    리치: 4
+    무게: 25
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.50
+          속성: "Normal"
+      1:
+        데미지: 20
+        속성: "Physics"
+      2:
+        데미지: 4
+        속성: "Const"
+  NETHERITE_SWORD:
+    공속: 1.2
+    리치: 3.4
+    무게: 25
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.50
+          속성: "Normal"
+      1:
+        데미지: 25
+        속성: "Physics"
+      2:
+        데미지: 5
+        속성: "Const"
+  NETHERITE_SHOVEL:
+    공속: 1.44
+    리치: 3
+    무게: 25
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.50
+          속성: "Normal"
+      1:
+        데미지: 23
+        속성: "Physics"
+      2:
+        데미지: 4.6
+        속성: "Const"
+  NETHERITE_PICKAXE:
+    공속: 3.2
+    리치: 2.2
+    무게: 15
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.50
+          속성: "Normal"
+      1:
+        데미지: 12
+        속성: "Physics"
+      2:
+        데미지: 12
+        속성: "Const"
+  NETHERITE_AXE:
+    공속: 0.8
+    리치: 2
+    무게: 35
+    데미지:
+      방어관통:
+        1:
+          관통률: 0.30
+          속성: "Const"
+        2:
+          관통률: 0.50
+          속성: "Normal"
+      1:
+        데미지: 60
+        속성: "Physics"
+      2:
+        데미지: 12
+        속성: "Const"
 갑옷:
-  DIAMOND_CHESTPLATE:
-    무게: 24
+  LEATHER_HELMET:
+    무게: 0
+    방어:
+      1:
+        방어: 20
+        속성: "Physics"
+  LEATHER_CHESTPLATE:
+    무게: 15
+    방어:
+      1:
+        방어: 40
+        속성: "Physics"
+  LEATHER_LEGGINGS:
+    무게: 5
+    방어:
+      1:
+        방어: 25
+        속성: "Physics"
+  LEATHER_BOOTS:
+    무게: 0
+    방어:
+      1:
+        방어: 15
+        속성: "Physics"
+  CHAINMAIL_HELMET:
+    무게: 10
+    방어:
+      1:
+        방어: 20
+        속성: "Normal"
+      2:
+        방어: -20
+        속성: "Normal"
+        타입:
+          - "Projectile"
+      3:
+        방어: -20
+        속성: "Normal"
+        타입:
+          - "Fire"
+  CHAINMAIL_CHESTPLATE:
+    무게: 25
     방어:
       1:
         방어: 40
         속성: "Normal"
       2:
-        방어: 12
+        방어: -40
+        속성: "Normal"
+        타입:
+          - "Projectile"
+      3:
+        방어: -40
+        속성: "Normal"
+        타입:
+          - "Fire"
+  CHAINMAIL_LEGGINGS:
+    무게: 15
+    방어:
+      1:
+        방어: 25
+        속성: "Normal"
+      2:
+        방어: -25
+        속성: "Normal"
+        타입:
+          - "Projectile"
+      3:
+        방어: -25
+        속성: "Normal"
+        타입:
+          - "Fire"
+  CHAINMAIL_BOOTS:
+    무게: 10
+    방어:
+      1:
+        방어: 15
+        속성: "Normal"
+      2:
+        방어: -15
+        속성: "Normal"
+        타입:
+          - "Projectile"
+      3:
+        방어: -15
+        속성: "Normal"
+        타입:
+          - "Fire"
+  IRON_HELMET:
+    무게: 10
+    방어:
+      1:
+        방어: 15
+        속성: "Normal"
+      2:
+        방어: 5
         속성: "Physics"
+  IRON_CHESTPLATE:
+    무게: 25
+    방어:
+      1:
+        방어: 25
+        속성: "Normal"
+      2:
+        방어: 15
+        속성: "Physics"
+  IRON_LEGGINGS:
+    무게: 15
+    방어:
+      1:
+        방어: 15
+        속성: "Normal"
+      2:
+        방어: 10
+        속성: "Physics"
+  IRON_BOOTS:
+    무게: 10
+    방어:
+      1:
+        방어: 10
+        속성: "Normal"
+      2:
+        방어: 5
+        속성: "Physics"
+  GOLDEN_HELMET:
+    무게: 10
+    방어:
+      1:
+        방어: 6
+        속성: "Normal"
+      2:
+        방어: 7
+        속성: "Physics"
+      3:
+        방어: 7
+        속성: "Magic"
+  GOLDEN_CHESTPLATE:
+    무게: 25
+    방어:
+      1:
+        방어: 10
+        속성: "Normal"
+      2:
+        방어: 15
+        속성: "Physics"
+      3:
+        방어: 15
+        속성: "Magic"
+  GOLDEN_LEGGINGS:
+    무게: 15
+    방어:
+      1:
+        방어: 5
+        속성: "Normal"
+      2:
+        방어: 10
+        속성: "Physics"
+      3:
+        방어: 10
+        속성: "Magic"
+  GOLDEN_BOOTS:
+    무게: 10
+    방어:
+      1:
+        방어: 6
+        속성: "Normal"
+      2:
+        방어: 7
+        속성: "Physics"
+      3:
+        방어: 7
+        속성: "Magic"
+  DIAMOND_HELMET:
+    무게: 15
+    방어:
+      1:
+        방어: 20
+        속성: "Normal"
+      2:
+        방어: 10
+        속성: "Magic"
+  DIAMOND_CHESTPLATE:
+    무게: 30
+    방어:
+      1:
+        방어: 32
+        속성: "Normal"
+      2:
+        방어: 16
+        속성: "Magic"
+  DIAMOND_LEGGINGS:
+    무게: 20
+    방어:
+      1:
+        방어: 20
+        속성: "Normal"
+      2:
+        방어: 10
+        속성: "Magic"
+  DIAMOND_BOOTS:
+    무게: 15
+    방어:
+      1:
+        방어: 12
+        속성: "Normal"
+      2:
+        방어: 6
+        속성: "Magic"
+  NETHERITE_HELMET:
+    무게: 20
+    방어:
+      1:
+        방어: 24
+        속성: "Normal"
+      2:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Projectile"
+      3:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Fire"
+  NETHERITE_CHESTPLATE:
+    무게: 35
+    방어:
+      1:
+        방어: 48
+        속성: "Normal"
+      2:
+        방어: 40
+        속성: "Normal"
+        타입:
+          - "Projectile"
+      3:
+        방어: 40
+        속성: "Normal"
+        타입:
+          - "Fire"
+  NETHERITE_LEGGINGS:
+    무게: 25
+    방어:
+      1:
+        방어: 50
+        속성: "Normal"
+      2:
+        방어: 25
+        속성: "Normal"
+        타입:
+          - "Projectile"
+      3:
+        방어: 25
+        속성: "Normal"
+        타입:
+          - "Fire"
+  NETHERITE_BOOTS:
+    무게: 20
+    방어:
+      1:
+        방어: 18
+        속성: "Normal"
+      2:
+        방어: 15
+        속성: "Normal"
+        타입:
+          - "Projectile"
+      3:
+        방어: 15
+        속성: "Normal"
+        타입:
+          - "Fire"

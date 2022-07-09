@@ -2,9 +2,11 @@ package com.hirises.combat.damage;
 
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
+import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.data.DamageApplier;
 import com.hirises.combat.damage.data.DamageTag;
 import com.hirises.combat.damage.data.WeaponData;
+import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
@@ -51,6 +53,8 @@ public class EventListener implements Listener {
         Player player = event.getPlayer();
         double speedRate = ConfigManager.weightData.getSpeedRate(CombatManager.getWeight(player));
         player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+        NBTTagStore.set(player, Keys.Current_Health.toString(), player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * CombatManager.DAMAGE_MODIFIER);
+        CombatManager.applyHealth(player);
     }
 
     @EventHandler
@@ -93,7 +97,7 @@ public class EventListener implements Listener {
     public void armorCheck(PlayerInteractEvent event){
         Player player = event.getPlayer();
         if(event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
-            if(ItemUtil.isExist(event.getItem()) && CombatManager.getArmorData(event.getItem()) != null){
+            if(ItemUtil.isExist(event.getItem()) && CombatManager.hasArmorData(event.getItem())){
                 Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
                     double speedRate = ConfigManager.weightData.getSpeedRate(CombatManager.getWeight(player));
                     player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
@@ -158,6 +162,9 @@ public class EventListener implements Listener {
                     break;
                 case FALL:
                     //낙하
+                case CUSTOM:
+                    //스텍 오버플로우 방지
+                    return;
                 default:
                     //고정 데미지
                     applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Const));
@@ -182,6 +189,10 @@ public class EventListener implements Listener {
                 WeaponData weapon = CombatManager.getWeaponData(damager);
                 if(event.getDamager() instanceof Player){
                     Player player = (Player) event.getDamager();
+                    if(player.getAttackCooldown() <= 0.9){
+                        event.setCancelled(true);
+                        return;
+                    }
                     if(entity.getLocation().distanceSquared(player.getLocation()) > weapon.getAttackDistance() * weapon.getAttackDistance()){
                         event.setCancelled(true);
                         return;

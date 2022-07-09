@@ -25,7 +25,11 @@ public class Damage implements DataUnit, IHasDamageTagValue {
         if(damageTag.equalAttackType(DamageTag.AttackType.Const)){
             return damage;
         }
-        return (damage * 100) / (CombatManager.getDefence(entity, damageTag, penetrates) + 100);
+        double defence = (CombatManager.getDefence(entity, damageTag, penetrates) + 100);
+        if(defence < 34){
+            defence = 34;
+        }
+        return (damage * 100) / defence;
     }
 
     @Override

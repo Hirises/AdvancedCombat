@@ -24,7 +24,7 @@ public class DefencePenetrate implements DataUnit, IHasDamageTagValue {
 
     @Override
     public double getValue() {
-        return rate;
+        return rate * 100;
     }
 
     public double getRate() {
@@ -33,7 +33,11 @@ public class DefencePenetrate implements DataUnit, IHasDamageTagValue {
 
     public double reduceDefence(double defence, DamageTag damageTag){
         if(damageTag.checkDefencePenetrateType(this.damageTag)){
-            return defence * (1 - rate);
+            if(defence > 0){
+                return defence * (1 - rate);
+            }else{
+                return defence * (1 + rate);
+            }
         }
         return defence;
     }

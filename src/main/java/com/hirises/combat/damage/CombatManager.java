@@ -32,7 +32,7 @@ public class CombatManager {
         }
         double health = NBTTagStore.get(entity, Keys.Current_Health.toString(), Double.class);
         if(health <= damage){
-            entity.remove();
+            entity.setHealth(0);
             return;
         }
         health -= damage;

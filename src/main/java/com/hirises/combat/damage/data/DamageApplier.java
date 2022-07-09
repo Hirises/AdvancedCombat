@@ -48,6 +48,10 @@ public class DamageApplier implements DataUnit {
         return finalDamage;
     }
 
+    public List<DefencePenetrate> getPenetrates() {
+        return penetrates;
+    }
+
     public void apply(LivingEntity entity){
         apply(entity, 1);
     }

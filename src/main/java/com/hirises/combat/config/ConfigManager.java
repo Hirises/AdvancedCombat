@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -95,6 +96,7 @@ public class ConfigManager {
         List<String> loreFormat,
 
         String attackDamageLine,
+        String penetrateLine,
         String projectileDamageLine,
         String defenceLine,
         String attributeLine,
@@ -137,7 +139,12 @@ public class ConfigManager {
                 builder.append(attackDamageLine);
                 builder.append("/n");
                 builder.append(getIHasDamageTagValueLore(data.getDamage().getDamages()));
-                builder.append("/n");
+                if(data.getDamage().getPenetrates().size() > 0){
+                    builder.append(penetrateLine);
+                    builder.append("/n");
+                    builder.append(getIHasDamageTagValueLore(data.getDamage().getPenetrates()));
+                    builder.append("/n");
+                }
 
                 weight += data.getWeight();
                 attackSpeed = data.getAttackSpeed();
@@ -173,7 +180,7 @@ public class ConfigManager {
                     return value;
                 });
             }
-            for(int key : tagMap.keySet().stream().sorted(Integer::compareTo).toList()){
+            for(int key : tagMap.keySet().stream().sorted(Integer::compareTo).collect(Collectors.toList())){
                 EnumSet<DamageTag.DamageType> tags = DamageTag.getDamageTypeFromFlag(key);
                 StringBuilder innerBuilder = new StringBuilder();
                 if(tags.size() > 0){
@@ -202,7 +209,7 @@ public class ConfigManager {
                             value += data.getValue();
                         }
                     }
-                    if(value > 0){
+                    if(value != 0){
                         switch (attackType){
                             case Normal -> valueForType.add(Util.remapString(normalFormat, "value", String.format("%d", (int)Math.floor(value))));
                             case Physics -> valueForType.add(Util.remapString(physicsFormat, "value", String.format("%d", (int)Math.floor(value))));
@@ -249,6 +256,7 @@ public class ConfigManager {
                     Util.remapColor(settings.getConfig().getStringList("아이템로어.형태.전체")),
 
                     Util.remapColor(settings.getToString("아이템로어.형태.구분선.공격력")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.구분선.방어관통")),
                     Util.remapColor(settings.getToString("아이템로어.형태.구분선.발사체")),
                     Util.remapColor(settings.getToString("아이템로어.형태.구분선.방어력")),
                     Util.remapColor(settings.getToString("아이템로어.형태.구분선.속성")),
@@ -302,6 +310,7 @@ public class ConfigManager {
                             EquipmentSlot.HAND
                     )
             );
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             if(useItemLore){
                 meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
             }
@@ -318,6 +327,7 @@ public class ConfigManager {
             if(useItemLore){
                 ItemStack item = new ItemStack(mat);
                 ItemMeta meta = item.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                 meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
                 item.setItemMeta(meta);
 
