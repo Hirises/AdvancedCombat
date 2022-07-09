@@ -7,7 +7,6 @@ import com.hirises.core.data.TimeUnit;
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 import com.hirises.core.task.CancelableTask;
-import com.hirises.core.util.Util;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -16,9 +15,11 @@ import java.util.List;
 
 public class FoodData implements DataUnit {
     private double instantHeal;
+    private double instantHunger;
     private double healPerSecond;
     private int healDuration;
     private int coolDown;
+    private int maxConsumeAmount;
     private List<Material> coolWith;
 
     public FoodData(){
@@ -26,6 +27,7 @@ public class FoodData implements DataUnit {
         this.healPerSecond = 0;
         this.healDuration = 0;
         this.coolDown = 0;
+        this.maxConsumeAmount = 1;
         this.coolWith = new ArrayList<>();
     }
 
@@ -49,45 +51,57 @@ public class FoodData implements DataUnit {
         return coolWith;
     }
 
-    public void eat(Player player){
-        CombatManager.heal(player, instantHeal);
-        startCoolDown(player);
-        double heal = healPerSecond / (20.0 / ConfigManager.foodDelay);
-        int count = healDuration / ConfigManager.foodDelay + 1;
-        new CancelableTask(AdvancedCombat.getInst(), ConfigManager.foodDelay, ConfigManager.foodDelay){
-            int _count = count;
+    public int getMaxConsumeAmount() {
+        return maxConsumeAmount;
+    }
 
-            @Override
-            public void run() {
-                if(!player.isOnline()){
-                    cancel();
-                }
-                CombatManager.heal(player, heal);
-                _count--;
-                if(_count <= 0){
-                    cancel();
-                }
+    public void eat(Player player, int amount){
+        if(instantHeal > 0){
+            CombatManager.heal(player, instantHeal * amount);
+        }
+        if(instantHunger > 0){
+            if(player.getFoodLevel() + (instantHunger * amount) > 19){
+                player.setFoodLevel(19);
+            }else{
+                player.setFoodLevel(player.getFoodLevel() + (int)Math.floor(instantHunger * amount));
             }
-        };
+        }
+        startCoolDown(player);
+        if(healPerSecond > 0){
+            double heal = (healPerSecond * amount) / (20.0 / ConfigManager.foodDelay);
+            CombatManager.startHealGradually(player, heal);
+            new CancelableTask(AdvancedCombat.getInst(), healDuration){
+                @Override
+                public void run() {
+                    CombatManager.endHealGradually(player, heal);
+                }
+            };
+        }
     }
 
     public void startCoolDown(Player player){
-        for(Material mat : coolWith){
-            player.setCooldown(mat, coolDown);
+        if(coolDown > 0){
+            for(Material mat : coolWith){
+                player.setCooldown(mat, coolDown);
+            }
         }
     }
 
     @Override
     public void load(YamlStore yml, String root) {
+        this.instantHunger = yml.getToNumber(root + ".허기");
         this.instantHeal = yml.getToNumber(root + ".회복");
         this.healPerSecond = yml.getToNumber(root + ".초당회복");
+        this.maxConsumeAmount = yml.getOrDefault(Integer.class, 1, root + ".최대섭취개수");
         this.healDuration = (int)yml.getOrDefault(new TimeUnit(), root + ".회복시간").getToTick();
         this.coolDown = (int)yml.getOrDefault(new TimeUnit(), root + ".쿨타임").getToTick();
         this.coolWith = new ArrayList<>();
         String matStr = root.substring(root.lastIndexOf(".") + 1);
         coolWith.add(Material.valueOf(matStr));
-        for(String mat : yml.getConfig().getStringList(root + ".쿨공유")){
-            coolWith.add(Material.valueOf(mat));
+        if(yml.containKey(root + ".쿨공유")){
+            for(String mat : yml.getConfig().getStringList(root + ".쿨공유")){
+                coolWith.add(Material.valueOf(mat));
+            }
         }
     }
 

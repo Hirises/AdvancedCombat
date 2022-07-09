@@ -6,6 +6,7 @@ import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.data.*;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
+import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
@@ -29,6 +30,9 @@ public class EventListener implements Listener {
         player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(
                 (ConfigManager.weightData.normalSpeedRate() / 1000.0)
         );
+        if(player.getFoodLevel() > 19){
+            player.setFoodLevel(19);
+        }
     }
 
     @EventHandler
@@ -51,6 +55,9 @@ public class EventListener implements Listener {
         player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
         NBTTagStore.set(player, Keys.Current_Health.toString(), player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * CombatManager.DAMAGE_MODIFIER);
         CombatManager.applyHealth(player);
+        if(player.getFoodLevel() > 19){
+            player.setFoodLevel(19);
+        }
     }
 
     @EventHandler
@@ -108,13 +115,29 @@ public class EventListener implements Listener {
         if(ItemUtil.isExist(food) && CombatManager.hasFoodData(food)){
             FoodData data = CombatManager.getFoodData(food);
             Player player = event.getPlayer();
-//            event.setCancelled(true);
-//            if(player.getInventory().getItemInMainHand().getType().equals(food.getType())){
-//                ItemUtil.operateAmount(player.getInventory().getItemInMainHand(), -1);
-//            }else{
-//                ItemUtil.operateAmount(player.getInventory().getItemInOffHand(), -1);
-//            }
-            data.eat(player);
+            event.setCancelled(true);
+            ItemStack item;
+            if(player.getInventory().getItemInMainHand().getType().equals(food.getType())){
+                item = player.getInventory().getItemInMainHand();
+            }else{
+                item = player.getInventory().getItemInOffHand();
+            }
+            if(item.getAmount() >= data.getMaxConsumeAmount()){
+                data.eat(player, data.getMaxConsumeAmount());
+                ItemUtil.operateAmount(item, -1 * data.getMaxConsumeAmount());
+            }else{
+                data.eat(player, item.getAmount());
+                item.setAmount(0);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onHungerChange(FoodLevelChangeEvent event){
+        Player player = (Player) event.getEntity();
+        if(event.getFoodLevel() > 19){
+            event.setCancelled(true);
+            player.setFoodLevel(19);
         }
     }
 

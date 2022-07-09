@@ -1,12 +1,15 @@
 package com.hirises.combat.damage;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.data.*;
 import com.hirises.core.armorstand.ArmorStandWrapper;
 import com.hirises.core.store.NBTTagStore;
+import com.hirises.core.task.CancelableTask;
 import com.hirises.core.util.ItemUtil;
+import com.hirises.core.util.Pair;
 import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,11 +21,77 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class CombatManager {
     public final static int DAMAGE_MODIFIER = 10;
+    public final static Map<Player, FoodTask> foodMap = new HashMap<>();
+    private static class FoodTask {
+        private LivingEntity entity;
+        private AtomicDouble heal;
+        private CancelableTask task;
+
+        public FoodTask(LivingEntity entity){
+            this.entity = entity;
+            this.heal = new AtomicDouble();
+            this.task = null;
+        }
+
+        public void addHeal(double value){
+            this.heal.addAndGet(value);
+            if(this.entity == null){
+                heal = null;
+                task = null;
+                entity = null;
+                foodMap.remove(this);
+                return;
+            }
+            synchronized (entity){
+                if(this.task == null){
+                    this.task = new CancelableTask(AdvancedCombat.getInst(), ConfigManager.foodDelay, ConfigManager.foodDelay) {
+                        @Override
+                        public void run() {
+                            double amount = heal.get();
+                            if(amount <= 0.01){
+                                cancel();
+                                task = null;
+                                heal.set(0);
+                                return;
+                            }
+                            if(!entity.isValid()){
+                                cancel();
+                                heal = null;
+                                task = null;
+                                entity = null;
+                                foodMap.remove(this);
+                                return;
+                            }
+                            heal(entity, amount);
+                        }
+                    };
+                }
+            }
+        }
+
+        public void removeHeal(double value){
+            if(this.entity == null){
+                heal = null;
+                task = null;
+                entity = null;
+                foodMap.remove(this);
+                return;
+            }
+            this.heal.addAndGet(-value);
+        }
+
+        public void cancelTask(){
+            this.task.cancel();
+            this.task = null;
+        }
+    }
 
     public static void damage(LivingEntity entity, double damage) {
         if(!NBTTagStore.containKey(entity, Keys.Current_Health.toString())){
@@ -52,6 +121,17 @@ public class CombatManager {
         if(ConfigManager.useDamageMeter && heal > 0){
             spawnDamageMeter(entity.getEyeLocation(), ConfigManager.damageMeterData.getHealMeterString(heal));
         }
+    }
+
+    public static void startHealGradually(Player entity, double heal){
+        foodMap.computeIfAbsent(entity, value -> new FoodTask(value)).addHeal(heal);
+    }
+
+    public static void endHealGradually(Player entity, double heal){
+        if(!foodMap.containsKey(entity)){
+            return;
+        }
+        foodMap.get(entity).removeHeal(heal);
     }
 
     public static void applyHealth(LivingEntity entity){
@@ -125,6 +205,7 @@ public class CombatManager {
         meter.asMark();
         meter.get().setCustomName(string);
         meter.get().setCustomNameVisible(true);
+        NBTTagStore.set(meter.get(), Keys.DamageMeter.toString(), true);
         Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
             meter.get().remove();
         }, ConfigManager.damageMeterData.duration());
