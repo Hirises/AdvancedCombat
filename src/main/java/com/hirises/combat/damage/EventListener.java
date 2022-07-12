@@ -8,6 +8,7 @@ import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
 import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -46,6 +47,19 @@ public class EventListener implements Listener {
                                 equipment.getLeggings(), equipment.getBoots())
         );
         player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+    }
+
+    @EventHandler
+    public void onUndying(EntityResurrectEvent event){
+        LivingEntity entity = event.getEntity();
+        if(entity instanceof Player){
+            Player player = (Player) entity;
+            if(player.getCooldown(Material.TOTEM_OF_UNDYING) > 0){
+                event.setCancelled(true);
+            }else{
+                player.setCooldown(Material.TOTEM_OF_UNDYING, ConfigManager.undyingTotemCoolTime);
+            }
+        }
     }
 
     @EventHandler

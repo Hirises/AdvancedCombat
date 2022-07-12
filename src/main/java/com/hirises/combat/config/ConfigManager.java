@@ -73,6 +73,7 @@ public class ConfigManager {
         }
     }
     public static int foodDelay;
+    public static int undyingTotemCoolTime;
     public static DamageMeterData damageMeterData;
     public static WeaponData bearHand;
     public static ProjectileData normalArrow;
@@ -448,5 +449,7 @@ public class ConfigManager {
         CustomItemManager.registerItemReplacement(Material.SHIELD, item);
         WeaponData data = new WeaponData(bearHand.getAttackDistance(), shield.getWeight(), bearHand.getAttackDistance(), new DamageApplier(bearHand.getDamage()));
         weaponDataMap.put(Material.SHIELD, data);
+
+        undyingTotemCoolTime = (int) settings.getOrDefault(new TimeUnit(), "기타.불사의토템").getToTick();
     }
 }
