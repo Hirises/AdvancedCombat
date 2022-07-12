@@ -10,6 +10,7 @@ import com.hirises.core.util.Util;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -82,6 +83,7 @@ public class ConfigManager {
     public static Map<Material, ArmorData> armorDataMap;
     public static Map<Material, ProjectileData> projectileDataMap;
     public static Map<Material, FoodData> foodDataMap;
+    public static Map<EntityType, DamageApplier> entityDataMap;
     public record WeightData(
         int normalSpeedRate,
         int maxWeight,
@@ -436,6 +438,12 @@ public class ConfigManager {
 
                 CustomItemManager.registerItemReplacement(mat, item);
             }
+        }
+
+        for (String key : settings.getKeys("몬스터")) {
+            EntityType type = EntityType.valueOf(key);
+            DamageApplier data = settings.getOrDefault(new DamageApplier(), "음식." + key);
+            entityDataMap.put(type, data);
         }
 
         shield = settings.getOrDefault(new ArmorData(), "기타.방패");

@@ -15,6 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
@@ -219,8 +220,29 @@ public class CombatManager {
         return ConfigManager.armorDataMap.containsKey(armor.getType());
     }
 
+    public static boolean hasProjectileData(LivingEntity entity){
+        ItemStack weapon = entity.getEquipment().getItemInMainHand();
+        if(!ItemUtil.isExist(weapon) || !hasProjectileData(weapon)){
+            weapon = entity.getEquipment().getItemInOffHand();
+            return hasProjectileData(weapon);
+        }
+        return hasProjectileData(weapon);
+    }
+
     public static boolean hasProjectileData(ItemStack armor){
         return ConfigManager.projectileDataMap.containsKey(armor.getType());
+    }
+
+    public static boolean hasEntityData(EntityType type){
+        return ConfigManager.entityDataMap.containsKey(type);
+    }
+
+    public static DamageApplier getEntityData(EntityType type){
+        DamageApplier output = ConfigManager.entityDataMap.get(type);
+        if(output == null){
+            return new DamageApplier();
+        }
+        return output;
     }
 
     public static boolean hasFoodData(ItemStack item){

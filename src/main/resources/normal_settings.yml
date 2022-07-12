@@ -918,6 +918,174 @@
       초: 3
     쿨타임:
       초: 0
+몬스터:
+  ZOMBIE:
+    1:
+      데미지: 20
+      속성: "Physics"
+  HUSK:
+    1:
+      데미지: 20
+      속성: "Physics"
+  ZOMBIE_VILLAGER:
+    1:
+      데미지: 20
+      속성: "Physics"
+  DROWNED:
+    1:
+      데미지: 20
+      속성: "Physics"
+  PANDA:
+    1:
+      데미지: 25
+      속성: "Physics"
+  SPIDER:
+    1:
+      데미지: 5
+      속성: "Physics"
+    2:
+      데미지: 10
+      속성: "Magic"
+  CAVE_SPIDER:
+    1:
+      데미지: 5
+      속성: "Physics"
+    2:
+      데미지: 10
+      속성: "Magic"
+  SLIME:
+    1:
+      데미지: 30
+      속성: "Magic"
+  MAGMA_CUBE:
+    1:
+      데미지: 30
+      속성: "Magic"
+      타입:
+        - "Fire"
+  GHAST:
+    1:
+      데미지: 70
+      속성: "Magic"
+      타입:
+        - "Explosion"
+        - "Fire"
+  ENDERMAN:
+    1:
+      데미지: 30
+      속성: "Magic"
+  BLAZE:
+    1:
+      데미지: 25
+      속성: "Magic"
+      타입:
+        - "Fire"
+  GUARDIAN:
+    방어관통:
+      1:
+        관통률: 0.1
+        속성: "Const"
+    1:
+      데미지: 40
+      속성: "Magic"
+  ELDER_GUARDIAN:
+    방어관통:
+      1:
+        관통률: 0.3
+        속성: "Const"
+    1:
+      데미지: 80
+      속성: "Magic"
+  WITHER_SKELETON:
+    1:
+      데미지: 20
+      속성: "Physics"
+  ZOGLIN:
+    1:
+      데미지: 15
+      속성: "Physics"
+  WARDEN:
+    1:
+      데미지: 40
+      속성: "Const"
+    2:
+      데미지: 30
+      속성: "Physics"
+  EVOKER_FANGS:
+    방어관통:
+      1:
+        관통률: 0.3
+        속성: "Normal"
+    1:
+      데미지: 40
+      속성: "Magic"
+  RAVAGER:
+    1:
+      데미지: 100
+      속성: "Physics"
+  VEX:
+    1:
+      데미지: 20
+      속성: "Magic"
+  WITHER:
+    방어관통:
+      1:
+        관통률: 0.3
+        속성: "Const"
+    1:
+      데미지: 35
+      속성: "Magic"
+      타입:
+        - "Projectile"
+    2:
+      데미지: 10
+      속성: "Const"
+      타입:
+        - "Projectile"
+  SHULKER:
+    1:
+      데미지: 10
+      속성: "Magic"
+      타입:
+        - "Projectile"
+  WOLF:
+    1:
+      데미지: 15
+      속성: "Physics"
+  POLAR_BEAR:
+    1:
+      데미지: 25
+      속성: "Physics"
+  PHANTOM:
+    1:
+      데미지: 20
+      속성: "Physics"
+  IRON_GOLEM:
+    방어관통:
+      1:
+        관통률: 1
+        속성: "Physics"
+    1:
+      데미지: 80
+      속성: "Physics"
+  ENDERMITE:
+    1:
+      데미지: 10
+      속성: "Magic"
+  ENDER_DRAGON:
+    방어관통:
+      1:
+        관통률: 0.3
+        속성: "Const"
+    1:
+      데미지: 20
+      속성: "Physics"
+    2:
+      데미지: 40
+      속성: "Magic"
+    3:
+      데미지: 20
+      속성: "Const"
 기타:
   불사의토템:
     쿨타임:

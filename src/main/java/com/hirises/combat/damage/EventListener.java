@@ -10,6 +10,7 @@ import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -178,8 +179,13 @@ public class EventListener implements Listener {
         Projectile projectile = event.getEntity();
         if(projectile.getShooter() instanceof LivingEntity){
             LivingEntity entity = (LivingEntity) projectile.getShooter();
-            ProjectileData data = CombatManager.getProjectileData(entity);
-            NBTTagStore.set(projectile, Keys.Projectile_Damage.toString(), data);
+            if(CombatManager.hasProjectileData(entity)){
+                ProjectileData data = CombatManager.getProjectileData(entity);
+                NBTTagStore.set(projectile, Keys.Projectile_Damage.toString(), data.getDamage());
+            }else if(CombatManager.hasEntityData(entity.getType())){
+                DamageApplier data = CombatManager.getEntityData(entity.getType());
+                NBTTagStore.set(projectile, Keys.Projectile_Damage.toString(), data);
+            }
         }else{
             NBTTagStore.set(projectile, Keys.Projectile_Damage.toString(), ConfigManager.normalArrow);
         }
@@ -252,8 +258,8 @@ public class EventListener implements Listener {
             if(event.getDamager() instanceof Projectile){
                 event.setDamage(0);
                 Projectile projectile = (Projectile) event.getDamager();
-                ProjectileData data = NBTTagStore.get(projectile, Keys.Projectile_Damage.toString(), ProjectileData.class);
-                data.getDamage().apply(entity);
+                DamageApplier data = NBTTagStore.get(projectile, Keys.Projectile_Damage.toString(), DamageApplier.class);
+                data.apply(entity);
             }else if(event.getDamager() instanceof LivingEntity){
                 event.setDamage(0);
                 LivingEntity damager = (LivingEntity) event.getDamager();
@@ -267,6 +273,12 @@ public class EventListener implements Listener {
                     if(entity.getLocation().distanceSquared(player.getLocation()) > weapon.getAttackDistance() * weapon.getAttackDistance()){
                         event.setCancelled(true);
                         return;
+                    }
+                }else{
+                    EntityType entityType = entity.getType();
+                    if(CombatManager.hasEntityData(entityType)){
+                        DamageApplier monsterDamage = CombatManager.getEntityData(entityType);
+                        monsterDamage.apply(entity);
                     }
                 }
                 DamageApplier applier = weapon.getDamage();
