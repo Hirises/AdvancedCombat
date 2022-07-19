@@ -6,6 +6,7 @@ import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.data.*;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
+import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -263,11 +264,17 @@ public class EventListener implements Listener {
     public void onEntityDamage(EntityDamageByEntityEvent event){
         if(event.getEntity() instanceof LivingEntity){
             LivingEntity entity = (LivingEntity) event.getEntity();
+            double damageRate = 1;
+            if(entity.getType().equals(EntityType.PLAYER)){
+                damageRate = ConfigManager.playerDamageRate;
+            }else{
+                damageRate = ConfigManager.etcDamageRate;
+            }
             if(event.getDamager() instanceof Projectile){
                 event.setDamage(0);
                 Projectile projectile = (Projectile) event.getDamager();
                 DamageApplier data = NBTTagStore.get(projectile, Keys.Projectile_Damage.toString(), DamageApplier.class);
-                data.apply(entity);
+                data.apply(entity, damageRate);
             }else if(event.getDamager() instanceof LivingEntity){
                 event.setDamage(0);
                 LivingEntity damager = (LivingEntity) event.getDamager();
@@ -286,11 +293,11 @@ public class EventListener implements Listener {
                     EntityType entityType = entity.getType();
                     if(CombatManager.hasEntityData(entityType)){
                         DamageApplier monsterDamage = CombatManager.getEntityData(entityType);
-                        monsterDamage.apply(entity);
+                        monsterDamage.apply(entity, damageRate);
                     }
                 }
                 DamageApplier applier = weapon.getDamage();
-                applier.apply(entity);
+                applier.apply(entity, damageRate);
             }
         }
     }

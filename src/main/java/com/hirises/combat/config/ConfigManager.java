@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class ConfigManager {
     public final static YamlStore config = new YamlStore(AdvancedCombat.getInst(), "config.yml");
-    public static YamlStore settings = new YamlStore(AdvancedCombat.getInst(), "normal_settings.yml");
+    public static YamlStore settings = new YamlStore(AdvancedCombat.getInst(), "settings.yml");
 
     public static boolean useDamageMeter = false;
     public record DamageMeterData(
@@ -73,6 +73,8 @@ public class ConfigManager {
             ));
         }
     }
+    public static double playerDamageRate;
+    public static double etcDamageRate;
     public static int foodDelay;
     public static int undyingTotemCoolTime;
     public static DamageMeterData damageMeterData;
@@ -285,7 +287,7 @@ public class ConfigManager {
         config.load(false);
         settings.load(false);
 
-        useDamageMeter = settings.get(Boolean.class, "데미지미터기.사용");
+        useDamageMeter = config.get(Boolean.class, "데미지미터");
         if (useDamageMeter) {
             damageMeterData = new DamageMeterData(
                     settings.getToString("데미지미터기.형태"),
@@ -303,7 +305,7 @@ public class ConfigManager {
             );
         }
 
-        useItemLore = settings.get(Boolean.class, "아이템로어.사용");
+        useItemLore = config.get(Boolean.class, "아이템로어");
         if (useItemLore) {
             itemLoreData = new ItemLoreData(
                     Util.remapColor(settings.getConfig().getStringList("아이템로어.형태.전체")),
@@ -352,6 +354,7 @@ public class ConfigManager {
         armorDataMap = new HashMap<>();
         projectileDataMap = new HashMap<>();
         foodDataMap = new HashMap<>();
+        entityDataMap = new HashMap<>();
         bearHand = settings.getOrDefault(new WeaponData(), "무기.맨손");
         normalArrow = settings.getOrDefault(new ProjectileData(), "발사체.기본");
 
@@ -459,5 +462,8 @@ public class ConfigManager {
         weaponDataMap.put(Material.SHIELD, data);
 
         undyingTotemCoolTime = (int) settings.getOrDefault(new TimeUnit(), "기타.불사의토템").getToTick();
+
+        playerDamageRate = settings.getToNumber("기타.데미지보정.플레이어");
+        etcDamageRate = settings.getToNumber("기타.데미지보정.기타");
     }
 }
