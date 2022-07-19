@@ -74,7 +74,7 @@ public class FoodData implements DataUnit {
         if(healPerSecond > 0){
             double heal = (healPerSecond * amount) / (20.0 / ConfigManager.foodDelay);
             CombatManager.startHealGradually(player, heal);
-            new CancelableTask(AdvancedCombat.getInst(), healDuration){
+            new CancelableTask(AdvancedCombat.getInst(), healDuration + 1){
                 @Override
                 public void run() {
                     CombatManager.endHealGradually(player, heal);

@@ -6,8 +6,8 @@ import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.data.*;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
-import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
@@ -137,12 +137,20 @@ public class EventListener implements Listener {
             }else{
                 item = player.getInventory().getItemInOffHand();
             }
-            if(item.getAmount() >= data.getMaxConsumeAmount()){
+            if(item.getAmount() > data.getMaxConsumeAmount()){
                 data.eat(player, data.getMaxConsumeAmount());
-                ItemUtil.operateAmount(item, -1 * data.getMaxConsumeAmount());
+                if(player.getGameMode() != GameMode.CREATIVE){
+                    ItemUtil.operateAmount(item, -1 * data.getMaxConsumeAmount());
+                }
             }else{
                 data.eat(player, item.getAmount());
-                item.setAmount(0);
+                if(player.getGameMode() != GameMode.CREATIVE) {
+                    if (player.getInventory().getItemInMainHand().equals(food)) {
+                        player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+                    } else {
+                        player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+                    }
+                }
             }
         }
     }
