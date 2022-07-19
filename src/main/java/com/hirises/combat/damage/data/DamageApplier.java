@@ -8,6 +8,7 @@ import org.bukkit.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class DamageApplier implements DataUnit {
@@ -40,11 +41,7 @@ public class DamageApplier implements DataUnit {
     }
 
     public List<Damage> getDamages() {
-        return damages;
-    }
-
-    public void setDamages(List<Damage> damages) {
-        this.damages = damages;
+        return Collections.unmodifiableList(damages);
     }
 
     public double getFinalDamage(LivingEntity entity){
@@ -56,7 +53,7 @@ public class DamageApplier implements DataUnit {
     }
 
     public List<DefencePenetrate> getPenetrates() {
-        return penetrates;
+        return Collections.unmodifiableList(penetrates);
     }
 
     public void apply(LivingEntity entity){

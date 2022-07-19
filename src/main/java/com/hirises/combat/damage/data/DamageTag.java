@@ -4,6 +4,7 @@ import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 
 import java.util.EnumSet;
+import java.util.Objects;
 
 public class DamageTag implements DataUnit {
     public enum AttackType{
@@ -126,5 +127,18 @@ public class DamageTag implements DataUnit {
     @Override
     public void save(YamlStore yml, String root) {
         //No Use
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DamageTag damageTag = (DamageTag) o;
+        return attackType == damageTag.attackType && Objects.equals(damageTypes, damageTag.damageTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(attackType, damageTypes);
     }
 }

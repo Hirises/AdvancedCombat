@@ -270,11 +270,12 @@ public class EventListener implements Listener {
             }else{
                 damageRate = ConfigManager.etcDamageRate;
             }
+            PartialDamageApplier finalApplier = new PartialDamageApplier();
             if(event.getDamager() instanceof Projectile){
                 event.setDamage(0);
                 Projectile projectile = (Projectile) event.getDamager();
                 DamageApplier data = NBTTagStore.get(projectile, Keys.Projectile_Damage.toString(), DamageApplier.class);
-                data.apply(entity, damageRate);
+                finalApplier.merge(data);
             }else if(event.getDamager() instanceof LivingEntity){
                 event.setDamage(0);
                 LivingEntity damager = (LivingEntity) event.getDamager();
@@ -290,15 +291,16 @@ public class EventListener implements Listener {
                         return;
                     }
                 }else{
-                    EntityType entityType = entity.getType();
+                    EntityType entityType = damager.getType();
                     if(CombatManager.hasEntityData(entityType)){
                         DamageApplier monsterDamage = CombatManager.getEntityData(entityType);
-                        monsterDamage.apply(entity, damageRate);
+                        finalApplier.merge(monsterDamage);
                     }
                 }
                 DamageApplier applier = weapon.getDamage();
-                applier.apply(entity, damageRate);
+                finalApplier.merge(applier);
             }
+            finalApplier.apply(entity, damageRate);
         }
     }
 }
