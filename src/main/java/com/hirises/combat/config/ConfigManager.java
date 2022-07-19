@@ -445,7 +445,7 @@ public class ConfigManager {
 
         for (String key : settings.getKeys("몬스터")) {
             EntityType type = EntityType.valueOf(key);
-            DamageApplier data = settings.getOrDefault(new DamageApplier(), "음식." + key);
+            DamageApplier data = settings.getOrDefault(new DamageApplier(), "몬스터." + key);
             entityDataMap.put(type, data);
         }
 
