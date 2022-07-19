@@ -7,6 +7,7 @@ import com.hirises.core.data.TimeUnit;
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 import com.hirises.core.task.CancelableTask;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -70,7 +71,9 @@ public class FoodData implements DataUnit {
                 player.setFoodLevel(player.getFoodLevel() + (int)Math.floor(instantHunger * amount));
             }
         }
-        startCoolDown(player);
+        if(player.getGameMode() != GameMode.CREATIVE){
+            startCoolDown(player);
+        }
         if(healPerSecond > 0){
             double heal = (healPerSecond * amount) / (20.0 / ConfigManager.foodDelay);
             CombatManager.startHealGradually(player, heal);
