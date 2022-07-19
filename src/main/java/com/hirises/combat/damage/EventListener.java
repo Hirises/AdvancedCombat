@@ -245,11 +245,11 @@ public class EventListener implements Listener {
                     //마법 데미지
                     applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Magic));
                     break;
-                case FALL:
-                    //낙하
                 case CUSTOM:
                     //스텍 오버플로우 방지
                     return;
+                case FALL:
+                    //낙하
                 default:
                     //고정 데미지
                     applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Const));
@@ -272,12 +272,10 @@ public class EventListener implements Listener {
             }
             PartialDamageApplier finalApplier = new PartialDamageApplier();
             if(event.getDamager() instanceof Projectile){
-                event.setDamage(0);
                 Projectile projectile = (Projectile) event.getDamager();
                 DamageApplier data = NBTTagStore.get(projectile, Keys.Projectile_Damage.toString(), DamageApplier.class);
                 finalApplier.merge(data);
             }else if(event.getDamager() instanceof LivingEntity){
-                event.setDamage(0);
                 LivingEntity damager = (LivingEntity) event.getDamager();
                 WeaponData weapon = CombatManager.getWeaponData(damager);
                 if(event.getDamager() instanceof Player){

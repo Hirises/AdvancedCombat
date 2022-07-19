@@ -111,7 +111,7 @@ public class DamageApplier implements DataUnit {
         builder2.append("]");
         return "SimpleDamageApplier{" +
                 "damages=" + builder1 +
-                "damages=" + builder2 +
+                "penetrate=" + builder2 +
                 '}';
     }
 }

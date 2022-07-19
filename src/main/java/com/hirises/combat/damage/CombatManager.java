@@ -139,7 +139,11 @@ public class CombatManager {
         if(entity == null){
             return;
         }
-        entity.setHealth(NBTTagStore.get(entity, Keys.Current_Health.toString(), Double.class) / DAMAGE_MODIFIER);
+        double health = NBTTagStore.get(entity, Keys.Current_Health.toString(), Double.class) / DAMAGE_MODIFIER;
+        if(health < 0){
+            health = 0;
+        }
+        entity.setHealth(health);
     }
 
     public static double getMaxHealth(LivingEntity entity){
