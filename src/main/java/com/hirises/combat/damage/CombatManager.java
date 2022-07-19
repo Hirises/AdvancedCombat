@@ -19,6 +19,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -99,10 +100,6 @@ public class CombatManager {
             NBTTagStore.set(entity, Keys.Current_Health.toString(), getMaxHealth(entity));
         }
         double health = NBTTagStore.get(entity, Keys.Current_Health.toString(), Double.class);
-        if(health <= damage){
-            entity.setHealth(0);
-            return;
-        }
         health -= damage;
         NBTTagStore.set(entity, Keys.Current_Health.toString(), health);
         applyHealth(entity);
@@ -140,10 +137,57 @@ public class CombatManager {
             return;
         }
         double health = NBTTagStore.get(entity, Keys.Current_Health.toString(), Double.class) / DAMAGE_MODIFIER;
-        if(health < 0){
+        if(health <= 0){
+            if(entity instanceof Player){
+                Player player = (Player) entity;
+                if(player.getInventory().contains(Material.TOTEM_OF_UNDYING)){
+                    if(player.getCooldown(Material.TOTEM_OF_UNDYING) == 0){
+                        player.getInventory().removeItem(new ItemStack(Material.TOTEM_OF_UNDYING));
+                        player.setCooldown(Material.TOTEM_OF_UNDYING, ConfigManager.undyingTotemCoolTime);
+                        //토템 적용
+                        applyTotemOfUndying(entity);
+                        return;
+                    }
+                }else if(entity.getEquipment().getItemInOffHand().getType().equals(Material.TOTEM_OF_UNDYING)){
+                    entity.getEquipment().setItemInOffHand(new ItemStack(Material.AIR));
+                    //토템 적용
+                    applyTotemOfUndying(entity);
+                    return;
+                }
+            }else if(entity instanceof InventoryHolder){
+                InventoryHolder holder = (InventoryHolder) entity;
+                if(holder.getInventory().contains(Material.TOTEM_OF_UNDYING)){
+                    holder.getInventory().removeItem(new ItemStack(Material.TOTEM_OF_UNDYING));
+                    //토템 적용
+                    applyTotemOfUndying(entity);
+                    return;
+                }else if(entity.getEquipment().getItemInOffHand().getType().equals(Material.TOTEM_OF_UNDYING)){
+                    entity.getEquipment().setItemInOffHand(new ItemStack(Material.AIR));
+                    //토템 적용
+                    applyTotemOfUndying(entity);
+                    return;
+                }
+            }else{
+                if(entity.getEquipment().getItemInMainHand().getType().equals(Material.TOTEM_OF_UNDYING)){
+                    entity.getEquipment().setItemInMainHand(new ItemStack(Material.AIR));
+                    //토템 적용
+                    applyTotemOfUndying(entity);
+                    return;
+                }else if(entity.getEquipment().getItemInOffHand().getType().equals(Material.TOTEM_OF_UNDYING)){
+                    entity.getEquipment().setItemInOffHand(new ItemStack(Material.AIR));
+                    //토템 적용
+                    applyTotemOfUndying(entity);
+                    return;
+                }
+            }
             health = 0;
         }
         entity.setHealth(health);
+    }
+
+    public static void applyTotemOfUndying(LivingEntity entity){
+        NBTTagStore.set(entity, Keys.Current_Health.toString(), 10 * DAMAGE_MODIFIER);
+        applyHealth(entity);
     }
 
     public static double getMaxHealth(LivingEntity entity){

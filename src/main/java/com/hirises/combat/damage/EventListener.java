@@ -22,6 +22,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 public class EventListener implements Listener {
@@ -53,15 +54,7 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onUndying(EntityResurrectEvent event){
-        LivingEntity entity = event.getEntity();
-        if(entity instanceof Player){
-            Player player = (Player) entity;
-            if(player.getCooldown(Material.TOTEM_OF_UNDYING) > 0){
-                event.setCancelled(true);
-            }else{
-                player.setCooldown(Material.TOTEM_OF_UNDYING, ConfigManager.undyingTotemCoolTime);
-            }
-        }
+        event.setCancelled(true);
     }
 
     @EventHandler
@@ -71,9 +64,11 @@ public class EventListener implements Listener {
         player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
         NBTTagStore.set(player, Keys.Current_Health.toString(), player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * CombatManager.DAMAGE_MODIFIER);
         CombatManager.applyHealth(player);
-        if(player.getFoodLevel() > 19){
-            player.setFoodLevel(19);
-        }
+        Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
+            if(player.getFoodLevel() > 19){
+                player.setFoodLevel(19);
+            }
+        }, 1);
     }
 
     @EventHandler
@@ -274,6 +269,9 @@ public class EventListener implements Listener {
             if(event.getDamager() instanceof Projectile){
                 Projectile projectile = (Projectile) event.getDamager();
                 DamageApplier data = NBTTagStore.get(projectile, Keys.Projectile_Damage.toString(), DamageApplier.class);
+                if(data == null){
+                    return;
+                }
                 finalApplier.merge(data);
             }else if(event.getDamager() instanceof LivingEntity){
                 LivingEntity damager = (LivingEntity) event.getDamager();
