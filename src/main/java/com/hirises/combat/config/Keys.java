@@ -6,6 +6,8 @@ public enum Keys {
     Attribute_Modifier("combat_attribute"),
     Projectile_Damage("combat_projectile_damage"),
     DamageMeter("combat_damagerMeter"),
+    MaterialCoolDown("combat_matCool."),
+    MaterialCoolDown_NoDot("combat_matCool"), //MaterialCoolDown의 점 없는 버전
     ;
 
     private String key;

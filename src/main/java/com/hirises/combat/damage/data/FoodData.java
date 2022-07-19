@@ -2,13 +2,17 @@ package com.hirises.combat.damage.data;
 
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
+import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.CombatManager;
 import com.hirises.core.data.TimeUnit;
 import com.hirises.core.data.unit.DataUnit;
+import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.store.YamlStore;
 import com.hirises.core.task.CancelableTask;
+import com.hirises.core.util.Util;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -60,27 +64,30 @@ public class FoodData implements DataUnit {
         return maxConsumeAmount;
     }
 
-    public void eat(Player player, int amount){
+    public void eat(LivingEntity entity, int amount){
         if(instantHeal > 0){
-            CombatManager.heal(player, instantHeal * amount);
+            CombatManager.heal(entity, instantHeal * amount);
         }
-        if(instantHunger > 0){
-            if(player.getFoodLevel() + (instantHunger * amount) > 19){
-                player.setFoodLevel(19);
-            }else{
-                player.setFoodLevel(player.getFoodLevel() + (int)Math.floor(instantHunger * amount));
+        if(entity instanceof Player){
+            Player player = (Player) entity;
+            if(instantHunger > 0){
+                if(player.getFoodLevel() + (instantHunger * amount) > 19){
+                    player.setFoodLevel(19);
+                }else{
+                    player.setFoodLevel(player.getFoodLevel() + (int)Math.floor(instantHunger * amount));
+                }
             }
-        }
-        if(player.getGameMode() != GameMode.CREATIVE){
-            startCoolDown(player);
+            if(player.getGameMode() != GameMode.CREATIVE){
+                startCoolDown(player);
+            }
         }
         if(healPerSecond > 0){
             double heal = (healPerSecond * amount) / (20.0 / ConfigManager.foodDelay);
-            CombatManager.startHealGradually(player, heal);
+            CombatManager.startHealGradually(entity, heal);
             new CancelableTask(AdvancedCombat.getInst(), healDuration + 1){
                 @Override
                 public void run() {
-                    CombatManager.endHealGradually(player, heal);
+                    CombatManager.endHealGradually(entity, heal);
                 }
             };
         }
@@ -89,6 +96,7 @@ public class FoodData implements DataUnit {
     public void startCoolDown(Player player){
         if(coolDown > 0){
             for(Material mat : coolWith){
+                NBTTagStore.set(player, Keys.MaterialCoolDown + mat.toString(), Util.getCurrentTick() + coolDown);
                 player.setCooldown(mat, coolDown);
             }
         }

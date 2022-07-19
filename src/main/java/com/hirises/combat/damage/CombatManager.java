@@ -9,7 +9,6 @@ import com.hirises.core.armorstand.ArmorStandWrapper;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.task.CancelableTask;
 import com.hirises.core.util.ItemUtil;
-import com.hirises.core.util.Pair;
 import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,7 +29,7 @@ import java.util.Map;
 
 public class CombatManager {
     public final static int DAMAGE_MODIFIER = 10;
-    public final static Map<Player, FoodTask> foodMap = new HashMap<>();
+    public final static Map<LivingEntity, FoodTask> foodMap = new HashMap<>();
     private static class FoodTask {
         private LivingEntity entity;
         private AtomicDouble heal;
@@ -121,11 +120,11 @@ public class CombatManager {
         }
     }
 
-    public static void startHealGradually(Player entity, double heal){
+    public static void startHealGradually(LivingEntity entity, double heal){
         foodMap.computeIfAbsent(entity, value -> new FoodTask(value)).addHeal(heal);
     }
 
-    public static void endHealGradually(Player entity, double heal){
+    public static void endHealGradually(LivingEntity entity, double heal){
         if(!foodMap.containsKey(entity)){
             return;
         }
@@ -143,7 +142,6 @@ public class CombatManager {
                 if(player.getInventory().contains(Material.TOTEM_OF_UNDYING)){
                     if(player.getCooldown(Material.TOTEM_OF_UNDYING) == 0){
                         player.getInventory().removeItem(new ItemStack(Material.TOTEM_OF_UNDYING));
-                        player.setCooldown(Material.TOTEM_OF_UNDYING, ConfigManager.undyingTotemCoolTime);
                         //토템 적용
                         applyTotemOfUndying(entity);
                         return;
@@ -186,8 +184,8 @@ public class CombatManager {
     }
 
     public static void applyTotemOfUndying(LivingEntity entity){
-        NBTTagStore.set(entity, Keys.Current_Health.toString(), 10 * DAMAGE_MODIFIER);
-        applyHealth(entity);
+        NBTTagStore.set(entity, Keys.Current_Health.toString(), 0);
+        ConfigManager.undyingTotem.eat(entity, 1);
     }
 
     public static double getMaxHealth(LivingEntity entity){

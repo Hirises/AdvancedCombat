@@ -76,7 +76,7 @@ public class ConfigManager {
     public static double playerDamageRate;
     public static double etcDamageRate;
     public static int foodDelay;
-    public static int undyingTotemCoolTime;
+    public static FoodData undyingTotem;
     public static DamageMeterData damageMeterData;
     public static WeaponData bearHand;
     public static ProjectileData normalArrow;
@@ -461,7 +461,14 @@ public class ConfigManager {
         WeaponData data = new WeaponData(bearHand.getAttackDistance(), shield.getWeight(), bearHand.getAttackDistance(), new DamageApplier(bearHand.getDamage()));
         weaponDataMap.put(Material.SHIELD, data);
 
-        undyingTotemCoolTime = (int) settings.getOrDefault(new TimeUnit(), "기타.불사의토템").getToTick();
+        undyingTotem = settings.getOrDefault(new FoodData(), "기타.TOTEM_OF_UNDYING");
+        foodDataMap.put(Material.TOTEM_OF_UNDYING, undyingTotem);
+        item = CustomItemManager.hasRegisteredItemReplacement(Material.TOTEM_OF_UNDYING) ?
+                CustomItemManager.getRegisteredItemReplacement(Material.TOTEM_OF_UNDYING) : new ItemStack(Material.TOTEM_OF_UNDYING);
+        meta = item.getItemMeta();
+        meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
+        item.setItemMeta(meta);
+        CustomItemManager.registerItemReplacement(Material.TOTEM_OF_UNDYING, item);
 
         playerDamageRate = settings.getToNumber("기타.데미지보정.플레이어");
         etcDamageRate = settings.getToNumber("기타.데미지보정.기타");

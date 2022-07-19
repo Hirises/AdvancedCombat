@@ -22,7 +22,6 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 public class EventListener implements Listener {
@@ -34,8 +33,19 @@ public class EventListener implements Listener {
         player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(
                 (ConfigManager.weightData.normalSpeedRate() / 1000.0)
         );
+        assertPlayerSettings(player);
+    }
+
+    private void assertPlayerSettings(Player player) {
         if(player.getFoodLevel() > 19){
             player.setFoodLevel(19);
+        }
+        for(String key : NBTTagStore.getKeys(player, Keys.MaterialCoolDown_NoDot.toString())){
+            Material mat = Material.valueOf(key);
+            int restTick = (int) (NBTTagStore.get(player, Keys.MaterialCoolDown + key, Long.class) - Util.getCurrentTick());
+            if(restTick > 0){
+                player.setCooldown(mat, restTick);
+            }
         }
     }
 
@@ -65,9 +75,7 @@ public class EventListener implements Listener {
         NBTTagStore.set(player, Keys.Current_Health.toString(), player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * CombatManager.DAMAGE_MODIFIER);
         CombatManager.applyHealth(player);
         Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
-            if(player.getFoodLevel() > 19){
-                player.setFoodLevel(19);
-            }
+            assertPlayerSettings(player);
         }, 1);
     }
 
