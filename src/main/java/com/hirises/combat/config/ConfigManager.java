@@ -10,6 +10,7 @@ import com.hirises.core.util.Util;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
@@ -36,7 +37,8 @@ public class ConfigManager {
 
       String fireSymbol,
       String projectileSymbol,
-      String explosionSymbol
+      String explosionSymbol,
+      String fallSymbol
     )
     {
         public String getHealMeterString(double heal){
@@ -63,6 +65,7 @@ public class ConfigManager {
                     case Fire -> symbol += fireSymbol;
                     case Projectile -> symbol += projectileSymbol;
                     case Explosion -> symbol += explosionSymbol;
+                    case Fall -> symbol += fallSymbol;
                 }
             }
 
@@ -86,6 +89,9 @@ public class ConfigManager {
     public static Map<Material, ProjectileData> projectileDataMap;
     public static Map<Material, FoodData> foodDataMap;
     public static Map<EntityType, DamageApplier> entityDataMap;
+    public static Map<Enchantment, ArmorEnchantData> armorEnchantDataMap;
+    public static Map<Enchantment, DamageEnchantData> projectileEnchantDataMap;
+    public static Map<Enchantment, WeaponEnchantData> weaponEnchantDataMap;
     public record WeightData(
         int normalSpeedRate,
         int maxWeight,
@@ -126,6 +132,7 @@ public class ConfigManager {
         String fireTag,
         String projectileTag,
         String explosionTag,
+        String fallTag,
         String tagSeparator,
         String tagPrefix,
         String tagSuffix,
@@ -250,6 +257,9 @@ public class ConfigManager {
                             case Projectile -> {
                                 return projectileTag;
                             }
+                            case Fall -> {
+                                return fallTag;
+                            }
                             default -> {
                                 return "";
                             }
@@ -301,7 +311,8 @@ public class ConfigManager {
 
                     Util.remapColor(settings.getToString("데미지미터기.심볼.화염")),
                     Util.remapColor(settings.getToString("데미지미터기.심볼.원거리")),
-                    Util.remapColor(settings.getToString("데미지미터기.심볼.폭발"))
+                    Util.remapColor(settings.getToString("데미지미터기.심볼.폭발")),
+                    Util.remapColor(settings.getToString("데미지미터기.심볼.낙하"))
             );
         }
 
@@ -332,6 +343,7 @@ public class ConfigManager {
                     Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.화염")),
                     Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.발사체")),
                     Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.폭발")),
+                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.낙하")),
                     Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.구분")),
                     Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.접두사")),
                     Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.접미사")),
@@ -355,6 +367,9 @@ public class ConfigManager {
         projectileDataMap = new HashMap<>();
         foodDataMap = new HashMap<>();
         entityDataMap = new HashMap<>();
+        armorEnchantDataMap = new HashMap<>();
+        projectileDataMap = new HashMap<>();
+        weaponDataMap = new HashMap<>();
         bearHand = settings.getOrDefault(new WeaponData(), "무기.맨손");
         normalArrow = settings.getOrDefault(new ProjectileData(), "발사체.기본");
 
@@ -447,6 +462,24 @@ public class ConfigManager {
             EntityType type = EntityType.valueOf(key);
             DamageApplier data = settings.getOrDefault(new DamageApplier(), "몬스터." + key);
             entityDataMap.put(type, data);
+        }
+
+        for (String key : settings.getKeys("갑옷인첸트")) {
+            Enchantment type = Enchantment.getByName(key);
+            ArmorEnchantData data = settings.getOrDefault(new ArmorEnchantData(), "갑옷인첸트." + key);
+            armorEnchantDataMap.put(type, data);
+        }
+
+        for (String key : settings.getKeys("무기인첸트")) {
+            Enchantment type = Enchantment.getByName(key);
+            WeaponEnchantData data = settings.getOrDefault(new WeaponEnchantData(), "무기인첸트." + key);
+            weaponEnchantDataMap.put(type, data);
+        }
+
+        for (String key : settings.getKeys("발사체인첸트")) {
+            Enchantment type = Enchantment.getByName(key);
+            DamageEnchantData data = settings.getOrDefault(new DamageEnchantData(), "발사체인첸트." + key);
+            projectileEnchantDataMap.put(type, data);
         }
 
         shield = settings.getOrDefault(new ArmorData(), "기타.방패");

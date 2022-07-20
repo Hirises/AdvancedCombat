@@ -18,6 +18,7 @@ public class DamageTag implements DataUnit {
         Fire,
         Projectile,
         Explosion,
+        Fall,
         ;
     }
 
@@ -89,6 +90,9 @@ public class DamageTag implements DataUnit {
 
     public boolean checkDefenceType(DamageTag damageTag){
         if(damageTag.equalAttackType(AttackType.Const)){
+            if(damageTag.hasDamageType(DamageType.Fall) && this.attackType == AttackType.Normal){
+                return this.damageTypes.contains(DamageType.Fall);
+            }
             return false;
         }
         if(damageTag.equalAttackType(this.attackType) || this.attackType == AttackType.Normal){

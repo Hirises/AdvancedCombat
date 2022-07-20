@@ -9,7 +9,6 @@ import com.hirises.core.armorstand.ArmorStandWrapper;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.task.CancelableTask;
 import com.hirises.core.util.ItemUtil;
-import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -196,21 +195,21 @@ public class CombatManager {
         EntityEquipment equipment = entity.getEquipment();
         double defence = 0;
         if(ItemUtil.isExist(equipment.getHelmet())){
-            defence += getArmorData(equipment.getHelmet()).getFinalDefence(tag, penetrates);
+            defence += getNewArmorData(equipment.getHelmet()).getFinalDefence(tag, penetrates);
         }
         if(ItemUtil.isExist(equipment.getChestplate())){
-            defence += getArmorData(equipment.getChestplate()).getFinalDefence(tag, penetrates);
+            defence += getNewArmorData(equipment.getChestplate()).getFinalDefence(tag, penetrates);
         }
         if(ItemUtil.isExist(equipment.getLeggings())){
-            defence += getArmorData(equipment.getLeggings()).getFinalDefence(tag, penetrates);
+            defence += getNewArmorData(equipment.getLeggings()).getFinalDefence(tag, penetrates);
         }
         if(ItemUtil.isExist(equipment.getBoots())){;
-            defence += getArmorData(equipment.getBoots()).getFinalDefence(tag, penetrates);
+            defence += getNewArmorData(equipment.getBoots()).getFinalDefence(tag, penetrates);
         }
         if(entity instanceof Player){
             Player player = (Player) entity;
             if(player.isBlocking()){
-                defence += getArmorData(new ItemStack(Material.SHIELD)).getFinalDefence(tag, penetrates);
+                defence += getNewArmorData(new ItemStack(Material.SHIELD)).getFinalDefence(tag, penetrates);
             }
         }
         return defence;
@@ -231,16 +230,16 @@ public class CombatManager {
             weight += getWeaponData(off).getWeight();
         }
         if(ItemUtil.isExist(helmet)){
-            weight += getArmorData(helmet).getWeight();
+            weight += getNewArmorData(helmet).getWeight();
         }
         if(ItemUtil.isExist(chest)){
-            weight += getArmorData(chest).getWeight();
+            weight += getNewArmorData(chest).getWeight();
         }
         if(ItemUtil.isExist(leggings)){
-            weight += getArmorData(leggings).getWeight();
+            weight += getNewArmorData(leggings).getWeight();
         }
         if(ItemUtil.isExist(boots)){
-            weight += getArmorData(boots).getWeight();
+            weight += getNewArmorData(boots).getWeight();
         }
         return weight;
     }

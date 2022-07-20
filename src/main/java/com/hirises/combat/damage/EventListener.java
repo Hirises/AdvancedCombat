@@ -4,6 +4,8 @@ import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.data.*;
+import com.hirises.combat.item.CustomItemManager;
+import com.hirises.combat.item.ItemRegisteredEvent;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
 import com.hirises.core.util.Util;
@@ -22,7 +24,9 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class EventListener implements Listener {
 
@@ -253,6 +257,8 @@ public class EventListener implements Listener {
                     return;
                 case FALL:
                     //낙하
+                    applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Const, DamageTag.DamageType.Fall));
+                    break;
                 default:
                     //고정 데미지
                     applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Const));

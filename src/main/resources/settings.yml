@@ -12,6 +12,7 @@
     화염: "♨"
     원거리: "↗"
     폭발: "※"
+    낙하: "▥"
 아이템로어:
   형태:
     전체:
@@ -43,6 +44,7 @@
         발사체: "발사체"
         폭발: "폭발"
         화염: "화염"
+        낙하: "낙하"
         구분: " "
         접두사: "&7["
         접미사: "] "
@@ -477,6 +479,11 @@
       1:
         방어: 15
         속성: "Physics"
+      2:
+        방어: 50
+        속성: "Normal"
+        타입:
+          - "Fall"
   CHAINMAIL_HELMET:
     무게: 10
     방어:
@@ -541,6 +548,11 @@
         속성: "Normal"
         타입:
           - "Fire"
+      4:
+        방어: 50
+        속성: "Normal"
+        타입:
+          - "Fall"
   IRON_HELMET:
     무게: 10
     방어:
@@ -577,6 +589,11 @@
       2:
         방어: 5
         속성: "Physics"
+      3:
+        방어: 30
+        속성: "Normal"
+        타입:
+          - "Fall"
   GOLDEN_HELMET:
     무게: 10
     방어:
@@ -625,6 +642,11 @@
       3:
         방어: 7
         속성: "Magic"
+      4:
+        방어: 30
+        속성: "Normal"
+        타입:
+          - "Fall"
   DIAMOND_HELMET:
     무게: 15
     방어:
@@ -661,6 +683,11 @@
       2:
         방어: 6
         속성: "Magic"
+      3:
+        방어: 30
+        속성: "Normal"
+        타입:
+          - "Fall"
   NETHERITE_HELMET:
     무게: 20
     방어:
@@ -725,6 +752,11 @@
         속성: "Normal"
         타입:
           - "Fire"
+      4:
+        방어: 30
+        속성: "Normal"
+        타입:
+          - "Fall"
 발사체:
   기본:
     데미지:
@@ -1084,10 +1116,152 @@
     3:
       데미지: 20
       속성: "Const"
+갑옷인첸트:
+  protection: #보호
+    기본:
+      1:
+        방어: 10
+        속성: "Normal"
+    레벨:
+      1:
+        방어: 10
+        속성: "Normal"
+  blast_protection: #폭발로부터 보호
+    기본:
+      1:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Explosion"
+    레벨:
+      1:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Explosion"
+  fire_protection: #화염으로부터 보호
+    기본:
+      1:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Fire"
+    레벨:
+      1:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Fire"
+  projectile_protection: #발사체로부터 보호
+    기본:
+      1:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Projectile"
+    레벨:
+      1:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Projectile"
+  feather_falling: #가벼운 착지
+    기본:
+      1:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Fall"
+    레벨:
+      1:
+        방어: 20
+        속성: "Normal"
+        타입:
+          - "Fall"
+무기인첸트:
+  sharpness: #날카로움
+    기본:
+      1:
+        데미지: 5
+        속성: "Physics"
+    레벨:
+      1:
+        데미지: 5
+        속성: "Physics"
+  bane_of_arthropods: #살충
+    기본:
+      1:
+        데미지: 10
+        속성: "Physics"
+    레벨:
+      1:
+        데미지: 10
+        속성: "Physics"
+    대상:
+      - "SPIDER"
+      - "CAVE_SPIDER"
+      - "SILVERFISH"
+      - "ENDERMITE"
+  smite: #강타
+    기본:
+      1:
+        데미지: 10
+        속성: "Physics"
+    레벨:
+      1:
+        데미지: 10
+        속성: "Physics"
+    대상:
+      - "SKELETON"
+      - "ZOMBIE"
+      - "WITHER"
+      - "WITHER_SKELETON"
+      - "ZOMBIFIED_PIGLIN"
+      - "SKELETON_HORSE"
+      - "PHANTOM"
+      - "DROWNED"
+      - "HUSK"
+      - "STRAY"
+      - "ZOMBIE_VILLAGER"
+      - "ZOMBIE_HORSE"
+  piercing: #찌르기
+    기본:
+      1:
+        데미지: 2
+        속성: "Physics"
+      2:
+        데미지: 2
+        속성: "Magic"
+      3:
+        데미지: 1
+        속성: "Const"
+    레벨:
+      1:
+        데미지: 2
+        속성: "Physics"
+      2:
+        데미지: 2
+        속성: "Magic"
+      3:
+        데미지: 1
+        속성: "Const"
+발사체인첸트:
+  power: #힘
+    기본:
+      1:
+        데미지: 5
+        속성: "Physics"
+        타입:
+          - "Projectile"
+    레벨:
+      데미지: 5
+      속성: "Physics"
+      타입:
+        - "Projectile"
 기타:
   데미지보정:
     플레이어: 1.0
-    기타: 2.0
+    기타: 1.5
   불사의토템:
     최대섭취개수: 1
     허기: 10
