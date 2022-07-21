@@ -5,6 +5,7 @@ import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
 import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -190,6 +191,9 @@ public class ItemListener implements Listener {
 
     @EventHandler
     public void onWaterBucketEmpty(PlayerBucketEmptyEvent event){
+        if(event.getPlayer().getGameMode() == GameMode.CREATIVE){
+            return;
+        }
         ItemStack item = event.getItemStack();
 
         if(NBTTagStore.containKey(item, Keys.Item_Checked.toString())){
@@ -208,6 +212,9 @@ public class ItemListener implements Listener {
 
     @EventHandler
     public void onWaterBucketFill(PlayerBucketFillEvent event){
+        if(event.getPlayer().getGameMode() == GameMode.CREATIVE){
+            return;
+        }
         ItemStack item = event.getItemStack();
 
         if(NBTTagStore.containKey(item, Keys.Item_Checked.toString())){
