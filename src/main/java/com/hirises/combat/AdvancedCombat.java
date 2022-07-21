@@ -30,6 +30,7 @@ public final class AdvancedCombat extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new EventListener(), plugin);
 
         getCommand("combat").setExecutor(new CommandManager());
+        getCommand("combat").setTabCompleter(new CommandManager());
 
         for(World world : Bukkit.getWorlds()){
             for(Entity entity : world.getEntities()){
