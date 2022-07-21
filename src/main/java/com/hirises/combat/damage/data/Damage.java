@@ -22,7 +22,7 @@ public class Damage implements DataUnit, IHasDamageTagValue {
     }
 
     public double getFinalDamage(LivingEntity entity, List<DefencePenetrate> penetrates){
-        if(damageTag.equalAttackType(DamageTag.AttackType.Const)){
+        if(damageTag.equalAttackType(DamageTag.AttackType.Const) && !damageTag.hasDamageType(DamageTag.DamageType.Fall)){
             return damage;
         }
         double defence = (CombatManager.getDefence(entity, damageTag, penetrates) + 100);

@@ -338,6 +338,14 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event){
         if(event.getEntity() instanceof LivingEntity){
+            switch (event.getCause()){
+                case ENTITY_ATTACK: //플레이어 공격
+                case ENTITY_SWEEP_ATTACK: //휘칼
+                case PROJECTILE: //화살
+                    break;
+                default:
+                    return;
+            }
             LivingEntity entity = (LivingEntity) event.getEntity();
             double damageRate = 1;
             if(entity.getType().equals(EntityType.PLAYER)){

@@ -389,7 +389,7 @@ public class CombatManager {
     }
 
     public static DamageEnchantData getProjectileEnchantData(Enchantment enchantment){
-        if(hasWeaponEnchantData(enchantment)){
+        if(hasProjectileEnchantData(enchantment)){
             return ConfigManager.projectileEnchantDataMap.get(enchantment);
         }
         return new DamageEnchantData();
