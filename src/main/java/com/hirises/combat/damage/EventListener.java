@@ -78,14 +78,18 @@ public class EventListener implements Listener {
             return;
         }
         ItemStack output = target.clone();
+        boolean flag = false;
         if(CombatManager.hasArmorData(target)){
             NBTTagStore.set(output, Keys.Armor_Data.toString(), CombatManager.getNewArmorData(target));
+            flag = true;
         }
         if(CombatManager.hasProjectileData(target)){
             NBTTagStore.set(output, Keys.Projectile_Data.toString(), CombatManager.getNewProjectileData(target));
+            flag = true;
         }
         if(CombatManager.hasWeaponData(target)){
             NBTTagStore.set(output, Keys.Weapon_Data.toString(), CombatManager.getNewWeaponData(target));
+            flag = true;
 
             ItemMeta meta = output.getItemMeta();
             meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED,
@@ -100,7 +104,7 @@ public class EventListener implements Listener {
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             output.setItemMeta(meta);
         }
-        if(ConfigManager.useItemLore){
+        if(ConfigManager.useItemLore && flag){
             ItemMeta meta = output.getItemMeta();
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             meta.setLore(ConfigManager.itemLoreData.getItemLore(output));
@@ -115,16 +119,20 @@ public class EventListener implements Listener {
         if(!ItemUtil.isExist(target)){
             return;
         }
+        boolean flag = false;
         if(CombatManager.hasArmorData(target)){
             NBTTagStore.set(target, Keys.Armor_Data.toString(), CombatManager.getNewArmorData(target));
+            flag = true;
         }
         if(CombatManager.hasProjectileData(target)){
             NBTTagStore.set(target, Keys.Projectile_Data.toString(), CombatManager.getNewProjectileData(target));
+            flag = true;
         }
         if(CombatManager.hasWeaponData(target)){
             NBTTagStore.set(target, Keys.Weapon_Data.toString(), CombatManager.getNewWeaponData(target));
+            flag = true;
         }
-        if(ConfigManager.useItemLore){
+        if(ConfigManager.useItemLore && flag){
             ItemMeta meta = target.getItemMeta();
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             meta.setLore(ConfigManager.itemLoreData.getItemLore(target));
@@ -201,10 +209,10 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEatFood(PlayerItemConsumeEvent event){
         ItemStack food = event.getItem();
+        event.setCancelled(true);
+        Player player = event.getPlayer();
         if(ItemUtil.isExist(food) && CombatManager.hasFoodData(food)){
             FoodData data = CombatManager.getFoodData(food);
-            Player player = event.getPlayer();
-            event.setCancelled(true);
             ItemStack item;
             if(player.getInventory().getItemInMainHand().getType().equals(food.getType())){
                 item = player.getInventory().getItemInMainHand();
@@ -224,6 +232,19 @@ public class EventListener implements Listener {
                     } else {
                         player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
                     }
+                }
+            }
+        }
+        if(food.getAmount() > 1){
+            if(player.getGameMode() != GameMode.CREATIVE){
+                ItemUtil.operateAmount(food, -1);
+            }
+        }else{
+            if(player.getGameMode() != GameMode.CREATIVE) {
+                if (player.getInventory().getItemInMainHand().equals(food)) {
+                    player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+                } else {
+                    player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
                 }
             }
         }
