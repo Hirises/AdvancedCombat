@@ -15,6 +15,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -247,15 +248,19 @@ public class CombatManager {
     }
 
     public static void spawnDamageMeter(Location loc, String string){
-        ArmorStandWrapper meter = ArmorStandWrapper.getInstance(
-                loc.add(Vector.getRandom().add(new Vector(-0.5, 0, -0.5)))
-        );
-        meter.asMark();
-        meter.get().setCustomName(string);
-        meter.get().setCustomNameVisible(true);
-        NBTTagStore.set(meter.get(), Keys.DamageMeter.toString(), true);
+        ArmorStand armor = loc.getWorld().spawn(loc.add(Vector.getRandom().add(new Vector(-0.5, 0, -0.5))), ArmorStand.class, meter -> {
+            meter.setInvulnerable(true);
+            meter.setVisible(false);
+            meter.setBasePlate(false);
+            meter.setGravity(false);
+            meter.setSmall(true);
+            meter.setMarker(true);
+            meter.setCustomName(string);
+            meter.setCustomNameVisible(true);
+            NBTTagStore.set(meter, Keys.DamageMeter.toString(), true);
+        });
         Bukkit.getScheduler().runTaskLater(AdvancedCombat.getInst(), () -> {
-            meter.get().remove();
+            armor.remove();
         }, ConfigManager.damageMeterData.duration());
     }
 

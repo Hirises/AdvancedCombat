@@ -96,7 +96,8 @@ public class ConfigManager {
     public record WeightData(
         int normalSpeedRate,
         int maxWeight,
-        double speedRatePerWeight
+        double speedRatePerWeight,
+        double fallDamageRatePerWeight
     )
     {
         public double getSpeedRate(int weight){
@@ -104,6 +105,13 @@ public class ConfigManager {
                 weight = maxWeight;
             }
             return normalSpeedRate - (speedRatePerWeight * weight);
+        }
+
+        public double getFallDamageRate(int weight){
+            if(weight > maxWeight){
+                weight = maxWeight;
+            }
+            return 1 + fallDamageRatePerWeight * weight;
         }
     }
     public static WeightData weightData;
@@ -159,7 +167,7 @@ public class ConfigManager {
 
                 weight += data.getWeight();
             }
-            if(CombatManager.hasWeaponData(item)){
+            if(CombatManager.hasWeaponData(item) && !item.getType().equals(Material.SHIELD)){
                 WeaponData data = CombatManager.getWeaponData(item);
                 builder.append(attackDamageLine);
                 builder.append("/n");
@@ -300,69 +308,70 @@ public class ConfigManager {
         config.load(false);
         settings.load(false);
 
-        useDamageMeter = config.get(Boolean.class, "데미지미터");
+        useDamageMeter = config.get(Boolean.class, "데미지미터기.사용");
         if (useDamageMeter) {
             damageMeterData = new DamageMeterData(
-                    settings.getToString("데미지미터기.형태"),
-                    (int) settings.getOrDefault(new TimeUnit(), "데미지미터기.지속시간").getToTick(),
+                    config.getToString("데미지미터기.형태"),
+                    (int) config.getOrDefault(new TimeUnit(), "데미지미터기.지속시간").getToTick(),
 
-                    Util.remapColor(settings.getToString("데미지미터기.색상.일반")),
-                    Util.remapColor(settings.getToString("데미지미터기.색상.물리")),
-                    Util.remapColor(settings.getToString("데미지미터기.색상.마법")),
-                    Util.remapColor(settings.getToString("데미지미터기.색상.고정")),
-                    Util.remapColor(settings.getToString("데미지미터기.색상.회복")),
+                    Util.remapColor(config.getToString("데미지미터기.색상.일반")),
+                    Util.remapColor(config.getToString("데미지미터기.색상.물리")),
+                    Util.remapColor(config.getToString("데미지미터기.색상.마법")),
+                    Util.remapColor(config.getToString("데미지미터기.색상.고정")),
+                    Util.remapColor(config.getToString("데미지미터기.색상.회복")),
 
-                    Util.remapColor(settings.getToString("데미지미터기.심볼.화염")),
-                    Util.remapColor(settings.getToString("데미지미터기.심볼.원거리")),
-                    Util.remapColor(settings.getToString("데미지미터기.심볼.폭발")),
-                    Util.remapColor(settings.getToString("데미지미터기.심볼.낙하"))
+                    Util.remapColor(config.getToString("데미지미터기.심볼.화염")),
+                    Util.remapColor(config.getToString("데미지미터기.심볼.원거리")),
+                    Util.remapColor(config.getToString("데미지미터기.심볼.폭발")),
+                    Util.remapColor(config.getToString("데미지미터기.심볼.낙하"))
             );
         }
 
-        useItemLore = config.get(Boolean.class, "아이템로어");
+        useItemLore = config.get(Boolean.class, "아이템로어.사용");
         if (useItemLore) {
             itemLoreData = new ItemLoreData(
-                    Util.remapColor(settings.getConfig().getStringList("아이템로어.형태.전체")),
+                    Util.remapColor(config.getConfig().getStringList("아이템로어.형태.전체")),
 
-                    Util.remapColor(settings.getToString("아이템로어.형태.구분선.공격력")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.구분선.방어관통")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.구분선.발사체")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.구분선.방어력")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.구분선.회복")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.구분선.속성")),
+                    Util.remapColor(config.getToString("아이템로어.형태.구분선.공격력")),
+                    Util.remapColor(config.getToString("아이템로어.형태.구분선.방어관통")),
+                    Util.remapColor(config.getToString("아이템로어.형태.구분선.발사체")),
+                    Util.remapColor(config.getToString("아이템로어.형태.구분선.방어력")),
+                    Util.remapColor(config.getToString("아이템로어.형태.구분선.회복")),
+                    Util.remapColor(config.getToString("아이템로어.형태.구분선.속성")),
 
-                    Util.remapColor(settings.getToString("아이템로어.형태.속성.공격속도")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.속성.공격거리")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.속성.무게")),
+                    Util.remapColor(config.getToString("아이템로어.형태.속성.공격속도")),
+                    Util.remapColor(config.getToString("아이템로어.형태.속성.공격거리")),
+                    Util.remapColor(config.getToString("아이템로어.형태.속성.무게")),
 
-                    Util.remapColor(settings.getToString("아이템로어.형태.회복.동시섭취개수")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.회복.허기")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.회복.회복")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.회복.초당회복")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.회복.지속시간")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.회복.쿨타임")),
+                    Util.remapColor(config.getToString("아이템로어.형태.회복.동시섭취개수")),
+                    Util.remapColor(config.getToString("아이템로어.형태.회복.허기")),
+                    Util.remapColor(config.getToString("아이템로어.형태.회복.회복")),
+                    Util.remapColor(config.getToString("아이템로어.형태.회복.초당회복")),
+                    Util.remapColor(config.getToString("아이템로어.형태.회복.지속시간")),
+                    Util.remapColor(config.getToString("아이템로어.형태.회복.쿨타임")),
 
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.전체")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.화염")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.발사체")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.폭발")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.낙하")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.구분")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.접두사")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.태그.접미사")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.전체")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.태그.화염")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.태그.발사체")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.태그.폭발")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.태그.낙하")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.태그.구분")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.태그.접두사")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.태그.접미사")),
 
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.데미지.일반")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.데미지.물리")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.데미지.마법")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.데미지.고정")),
-                    Util.remapColor(settings.getToString("아이템로어.형태.데미지속성.데미지.구분"))
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.데미지.일반")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.데미지.물리")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.데미지.마법")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.데미지.고정")),
+                    Util.remapColor(config.getToString("아이템로어.형태.데미지속성.데미지.구분"))
             );
         }
 
         weightData = new WeightData(
                 settings.get(Integer.class, "무게.기본이속"),
                 settings.get(Integer.class, "무게.최대무게"),
-                settings.getToNumber("무게.무게당이속감소")
+                settings.getToNumber("무게.무게당이속감소"),
+                settings.getToNumber("무게.무게당낙뎀증가율")
         );
 
         weaponDataMap = new HashMap<>();

@@ -257,8 +257,19 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onShootBow(EntityShootBowEvent event){
+        Projectile projectile = (Projectile) event.getProjectile();
+        LivingEntity entity = event.getEntity();
+        ProjectileData data = CombatManager.getProjectileData(entity);
+        NBTTagStore.set(projectile, Keys.Projectile_Damage.toString(), data.getDamage().multiply(event.getForce()));
+    }
+
+    @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event){
         Projectile projectile = event.getEntity();
+        if(NBTTagStore.containKey(projectile, Keys.Projectile_Damage.toString())){
+            return;
+        }
         if(projectile.getShooter() instanceof LivingEntity){
             LivingEntity entity = (LivingEntity) projectile.getShooter();
             if(CombatManager.hasProjectileData(entity)){
@@ -286,8 +297,6 @@ public class EventListener implements Listener {
                     event.setDamage(0);
                     return;
                 case THORNS: //가시
-                    event.setCancelled(true);
-                    return;
                 case FALLING_BLOCK:
                 case CONTACT:
                     //물리 데미지
@@ -323,7 +332,8 @@ public class EventListener implements Listener {
                     return;
                 case FALL:
                     //낙하
-                    applier = new DamageApplier(event.getDamage(), new DamageTag(DamageTag.AttackType.Const, DamageTag.DamageType.Fall));
+                    applier = new DamageApplier(event.getDamage() * ConfigManager.weightData.getFallDamageRate(CombatManager.getWeight(entity)),
+                            new DamageTag(DamageTag.AttackType.Const, DamageTag.DamageType.Fall));
                     break;
                 default:
                     //고정 데미지

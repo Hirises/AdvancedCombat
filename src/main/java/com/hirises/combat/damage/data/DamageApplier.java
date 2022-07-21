@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DamageApplier implements DataUnit {
     private List<Damage> damages;
@@ -42,6 +43,10 @@ public class DamageApplier implements DataUnit {
 
     public List<Damage> getDamages() {
         return Collections.unmodifiableList(damages);
+    }
+
+    public DamageApplier multiply(double value){
+        return new DamageApplier(damages.stream().map(data -> data.multiply(value)).collect(Collectors.toList()), penetrates);
     }
 
     public double getFinalDamage(LivingEntity entity){

@@ -32,6 +32,10 @@ public class Damage implements DataUnit, IHasDamageTagValue {
         return (damage * 100) / defence;
     }
 
+    public Damage multiply(double value){
+        return new Damage(damage * value, damageTag);
+    }
+
     @Override
     public DamageTag getDamageTag() {
         return damageTag;
