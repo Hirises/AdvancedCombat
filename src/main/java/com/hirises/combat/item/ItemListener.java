@@ -99,6 +99,10 @@ public class ItemListener implements Listener {
                 continue;
             }
 
+            if(!ItemUtil.isExist(contents[index])){
+                continue;
+            }
+
             ItemRegisteredEvent event1 = new ItemRegisteredEvent(contents[index], ItemRegisteredEvent.Cause.Chest);
             Bukkit.getPluginManager().callEvent(event1);
 
@@ -147,6 +151,10 @@ public class ItemListener implements Listener {
                     continue;
                 }
                 if(NBTTagStore.containKey(ingredients.get(index), Keys.Item_Checked.toString())){
+                    continue;
+                }
+
+                if(!ItemUtil.isExist(ingredients.get(index))){
                     continue;
                 }
 
@@ -217,12 +225,12 @@ public class ItemListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemEnchant(EnchantItemEvent event){
-        ItemChangeEvent event1 = new ItemChangeEvent(event.getItem(), ItemChangeEvent.Cause.Enchant);
+    public void onItemEnchant(PrepareAnvilEvent event){
+        ItemChangeEvent event1 = new ItemChangeEvent(event.getResult(), ItemChangeEvent.Cause.Enchant);
         Bukkit.getPluginManager().callEvent(event1);
 
         if(event1.isCanceled()){
-            event.setCancelled(true);
+            event.setResult(new ItemStack(Material.AIR));
         }
     }
 

@@ -1,5 +1,6 @@
 package com.hirises.combat;
 
+import com.hirises.combat.command.CommandManager;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.EventListener;
@@ -27,6 +28,8 @@ public final class AdvancedCombat extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ItemListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new CustomItemManager(), plugin);
         Bukkit.getPluginManager().registerEvents(new EventListener(), plugin);
+
+        getCommand("combat").setExecutor(new CommandManager());
 
         for(World world : Bukkit.getWorlds()){
             for(Entity entity : world.getEntities()){

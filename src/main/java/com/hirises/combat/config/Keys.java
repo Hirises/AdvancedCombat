@@ -8,6 +8,10 @@ public enum Keys {
     DamageMeter("combat_damagerMeter"),
     MaterialCoolDown("combat_matCool."),
     MaterialCoolDown_NoDot("combat_matCool"), //MaterialCoolDown의 점 없는 버전
+    Armor_Data("conbat_armorData"),
+    Weapon_Data("conbat_weaponData"),
+    Food_Data("conbat_foodData"),
+    Projectile_Data("conbat_projectileData"),
     ;
 
     private String key;

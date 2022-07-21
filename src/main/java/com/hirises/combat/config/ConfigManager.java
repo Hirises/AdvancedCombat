@@ -8,6 +8,7 @@ import com.hirises.core.data.TimeUnit;
 import com.hirises.core.store.YamlStore;
 import com.hirises.core.util.Util;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
@@ -91,7 +92,7 @@ public class ConfigManager {
     public static Map<EntityType, DamageApplier> entityDataMap;
     public static Map<Enchantment, ArmorEnchantData> armorEnchantDataMap;
     public static Map<Enchantment, DamageEnchantData> projectileEnchantDataMap;
-    public static Map<Enchantment, WeaponEnchantData> weaponEnchantDataMap;
+    public static Map<Enchantment, DamageEnchantData> weaponEnchantDataMap;
     public record WeightData(
         int normalSpeedRate,
         int maxWeight,
@@ -227,7 +228,9 @@ public class ConfigManager {
                 builder.append(Util.remapString(weightFormat, "value", Util.safeToString(weight)));
                 builder.append("/n");
             }
-            return Util.trimAllLine(Util.stringToList(builder.toString()));
+            List<String> output = Util.trimAllLine(Util.stringToList(builder.toString()));
+            output.add(0, "");
+            return output;
         }
 
         public String getIHasDamageTagValueLore(List<? extends IHasDamageTagValue> values){
@@ -368,8 +371,8 @@ public class ConfigManager {
         foodDataMap = new HashMap<>();
         entityDataMap = new HashMap<>();
         armorEnchantDataMap = new HashMap<>();
-        projectileDataMap = new HashMap<>();
-        weaponDataMap = new HashMap<>();
+        projectileEnchantDataMap = new HashMap<>();
+        weaponEnchantDataMap = new HashMap<>();
         bearHand = settings.getOrDefault(new WeaponData(), "무기.맨손");
         normalArrow = settings.getOrDefault(new ProjectileData(), "발사체.기본");
 
@@ -381,41 +384,12 @@ public class ConfigManager {
             Material mat = Material.valueOf(key);
             WeaponData data = settings.getOrDefault(new WeaponData(), "무기." + key);
             weaponDataMap.put(mat, data);
-
-            ItemStack item = CustomItemManager.hasRegisteredItemReplacement(mat) ? CustomItemManager.getRegisteredItemReplacement(mat) : new ItemStack(mat);
-            ItemMeta meta = item.getItemMeta();
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED,
-                    new AttributeModifier(
-                            UUID.randomUUID(),
-                            Keys.Attribute_Modifier.toString(),
-                            data.getAttackSpeed() - bearHand.getAttackSpeed(),
-                            AttributeModifier.Operation.ADD_NUMBER,
-                            EquipmentSlot.HAND
-                    )
-            );
-            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-            if(useItemLore){
-                meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
-            }
-            item.setItemMeta(meta);
-
-            CustomItemManager.registerItemReplacement(mat, item);
         }
 
         for (String key : settings.getKeys("갑옷")) {
             Material mat = Material.valueOf(key);
             ArmorData data = settings.getOrDefault(new ArmorData(), "갑옷." + key);
             armorDataMap.put(mat, data);
-
-            if(useItemLore){
-                ItemStack item = CustomItemManager.hasRegisteredItemReplacement(mat) ? CustomItemManager.getRegisteredItemReplacement(mat) : new ItemStack(mat);
-                ItemMeta meta = item.getItemMeta();
-                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
-                item.setItemMeta(meta);
-
-                CustomItemManager.registerItemReplacement(mat, item);
-            }
         }
 
         for (String key : settings.getKeys("발사체")) {
@@ -426,16 +400,6 @@ public class ConfigManager {
             Material mat = Material.valueOf(key);
             ProjectileData data = settings.getOrDefault(new ProjectileData(), "발사체." + key);
             projectileDataMap.put(mat, data);
-
-            if(useItemLore){
-                ItemStack item = CustomItemManager.hasRegisteredItemReplacement(mat) ? CustomItemManager.getRegisteredItemReplacement(mat) : new ItemStack(mat);
-                ItemMeta meta = item.getItemMeta();
-                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                meta.setLore(ConfigManager.itemLoreData.getItemLore(item));
-                item.setItemMeta(meta);
-
-                CustomItemManager.registerItemReplacement(mat, item);
-            }
         }
 
         for (String key : settings.getKeys("음식")) {
@@ -465,19 +429,19 @@ public class ConfigManager {
         }
 
         for (String key : settings.getKeys("갑옷인첸트")) {
-            Enchantment type = Enchantment.getByName(key);
+            Enchantment type = Enchantment.getByKey(new NamespacedKey("minecraft", key));
             ArmorEnchantData data = settings.getOrDefault(new ArmorEnchantData(), "갑옷인첸트." + key);
             armorEnchantDataMap.put(type, data);
         }
 
         for (String key : settings.getKeys("무기인첸트")) {
-            Enchantment type = Enchantment.getByName(key);
-            WeaponEnchantData data = settings.getOrDefault(new WeaponEnchantData(), "무기인첸트." + key);
+            Enchantment type = Enchantment.getByKey(new NamespacedKey("minecraft", key));
+            DamageEnchantData data = settings.getOrDefault(new DamageEnchantData(), "무기인첸트." + key);
             weaponEnchantDataMap.put(type, data);
         }
 
         for (String key : settings.getKeys("발사체인첸트")) {
-            Enchantment type = Enchantment.getByName(key);
+            Enchantment type = Enchantment.getByKey(new NamespacedKey("minecraft", key));
             DamageEnchantData data = settings.getOrDefault(new DamageEnchantData(), "발사체인첸트." + key);
             projectileEnchantDataMap.put(type, data);
         }

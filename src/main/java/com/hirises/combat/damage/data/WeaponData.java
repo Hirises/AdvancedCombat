@@ -3,6 +3,9 @@ package com.hirises.combat.damage.data;
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class WeaponData implements DataUnit {
     private double attackDistance;
     private int weight;
@@ -21,6 +24,13 @@ public class WeaponData implements DataUnit {
         this.weight = weight;
         this.attackDistance = attackDistance;
         this.damage = damage;
+    }
+
+    public WeaponData merge(List<Damage> data){
+        List<Damage> copy = new ArrayList<>();
+        copy.addAll(this.damage.getDamages());
+        copy.addAll(data);
+        return new WeaponData(attackDistance, weight, attackSpeed, new DamageApplier(copy, this.damage.getPenetrates()));
     }
 
     @Override

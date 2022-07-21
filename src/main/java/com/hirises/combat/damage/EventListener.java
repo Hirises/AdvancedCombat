@@ -5,6 +5,7 @@ import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.data.*;
 import com.hirises.combat.item.CustomItemManager;
+import com.hirises.combat.item.ItemChangeEvent;
 import com.hirises.combat.item.ItemRegisteredEvent;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
@@ -13,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -24,9 +26,12 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.UUID;
 
 public class EventListener implements Listener {
 
@@ -64,6 +69,67 @@ public class EventListener implements Listener {
                                 equipment.getLeggings(), equipment.getBoots())
         );
         player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(speedRate / 1000.0);
+    }
+
+    @EventHandler
+    public void onItemRegister(ItemRegisteredEvent event){
+        ItemStack target = event.getItemStack();
+        if(!ItemUtil.isExist(target)){
+            return;
+        }
+        ItemStack output = target.clone();
+        if(CombatManager.hasArmorData(target)){
+            NBTTagStore.set(output, Keys.Armor_Data.toString(), CombatManager.getNewArmorData(target));
+        }
+        if(CombatManager.hasProjectileData(target)){
+            NBTTagStore.set(output, Keys.Projectile_Data.toString(), CombatManager.getNewProjectileData(target));
+        }
+        if(CombatManager.hasWeaponData(target)){
+            NBTTagStore.set(output, Keys.Weapon_Data.toString(), CombatManager.getNewWeaponData(target));
+
+            ItemMeta meta = output.getItemMeta();
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED,
+                    new AttributeModifier(
+                            UUID.randomUUID(),
+                            Keys.Attribute_Modifier.toString(),
+                            CombatManager.getNewWeaponData(target).getAttackSpeed() - ConfigManager.bearHand.getAttackSpeed(),
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            EquipmentSlot.HAND
+                    )
+            );
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            output.setItemMeta(meta);
+        }
+        if(ConfigManager.useItemLore){
+            ItemMeta meta = output.getItemMeta();
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            meta.setLore(ConfigManager.itemLoreData.getItemLore(output));
+            output.setItemMeta(meta);
+        }
+        event.setItemStack(output);
+    }
+
+    @EventHandler
+    public void onItemChange(ItemChangeEvent event){
+        ItemStack target = event.getItemStack();
+        if(!ItemUtil.isExist(target)){
+            return;
+        }
+        if(CombatManager.hasArmorData(target)){
+            NBTTagStore.set(target, Keys.Armor_Data.toString(), CombatManager.getNewArmorData(target));
+        }
+        if(CombatManager.hasProjectileData(target)){
+            NBTTagStore.set(target, Keys.Projectile_Data.toString(), CombatManager.getNewProjectileData(target));
+        }
+        if(CombatManager.hasWeaponData(target)){
+            NBTTagStore.set(target, Keys.Weapon_Data.toString(), CombatManager.getNewWeaponData(target));
+        }
+        if(ConfigManager.useItemLore){
+            ItemMeta meta = target.getItemMeta();
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            meta.setLore(ConfigManager.itemLoreData.getItemLore(target));
+            target.setItemMeta(meta);
+        }
     }
 
     @EventHandler

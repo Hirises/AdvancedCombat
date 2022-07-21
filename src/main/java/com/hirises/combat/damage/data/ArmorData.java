@@ -20,6 +20,13 @@ public class ArmorData implements DataUnit {
         this.weight = weight;
     }
 
+    public ArmorData merge(List<Defence> data){
+        List<Defence> copy = new ArrayList<>();
+        copy.addAll(this.defences);
+        copy.addAll(data);
+        return new ArmorData(copy, weight);
+    }
+
     public List<Defence> getDefences() {
         return defences;
     }

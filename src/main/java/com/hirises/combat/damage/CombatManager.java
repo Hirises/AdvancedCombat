@@ -9,10 +9,12 @@ import com.hirises.core.armorstand.ArmorStandWrapper;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.task.CancelableTask;
 import com.hirises.core.util.ItemUtil;
+import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -312,9 +314,25 @@ public class CombatManager {
     }
 
     public static ProjectileData getProjectileData(ItemStack weapon){
+        if(NBTTagStore.containKey(weapon, Keys.Projectile_Data.toString())){
+            return NBTTagStore.get(weapon, Keys.Projectile_Data.toString(), ProjectileData.class);
+        }
+        return getNewProjectileData(weapon);
+    }
+
+    public static ProjectileData getNewProjectileData(ItemStack weapon){
         ProjectileData output = ConfigManager.projectileDataMap.get(weapon.getType());
         if(output == null){
             return ConfigManager.normalArrow;
+        }
+        Map<Enchantment, Integer> enchants = weapon.getItemMeta().getEnchants();
+        if(enchants != null && enchants.size() > 0){
+            for(Enchantment enchant : enchants.keySet()){
+                if(hasProjectileEnchantData(enchant)){
+                    DamageEnchantData data = getProjectileEnchantData(enchant);
+                    output = output.merge(data.getEnchant(enchants.get(enchant)));
+                }
+            }
         }
         return output;
     }
@@ -328,17 +346,82 @@ public class CombatManager {
     }
 
     public static WeaponData getWeaponData(ItemStack weapon){
+        if(NBTTagStore.containKey(weapon, Keys.Weapon_Data.toString())){
+            return NBTTagStore.get(weapon, Keys.Weapon_Data.toString(), WeaponData.class);
+        }
+        return getNewWeaponData(weapon);
+    }
+
+    public static WeaponData getNewWeaponData(ItemStack weapon){
         WeaponData output = ConfigManager.weaponDataMap.get(weapon.getType());
         if(output == null){
             return ConfigManager.bearHand;
+        }
+        Map<Enchantment, Integer> enchants = weapon.getItemMeta().getEnchants();
+        if(enchants != null && enchants.size() > 0){
+            for(Enchantment enchant : enchants.keySet()){
+                if(hasWeaponEnchantData(enchant)){
+                    DamageEnchantData data = getWeaponEnchantData(enchant);
+                    output = output.merge(data.getEnchant(enchants.get(enchant)));
+                }
+            }
         }
         return output;
     }
 
     public static ArmorData getArmorData(ItemStack armor){
+        if(NBTTagStore.containKey(armor, Keys.Armor_Data.toString())){
+            return NBTTagStore.get(armor, Keys.Armor_Data.toString(), ArmorData.class);
+        }
+        return getNewArmorData(armor);
+    }
+
+    public static boolean hasProjectileEnchantData(Enchantment enchantment){
+        return ConfigManager.projectileEnchantDataMap.containsKey(enchantment);
+    }
+
+    public static boolean hasArmorEnchantData(Enchantment enchantment){
+        return ConfigManager.armorEnchantDataMap.containsKey(enchantment);
+    }
+
+    public static boolean hasWeaponEnchantData(Enchantment enchantment){
+        return ConfigManager.weaponEnchantDataMap.containsKey(enchantment);
+    }
+
+    public static DamageEnchantData getProjectileEnchantData(Enchantment enchantment){
+        if(hasWeaponEnchantData(enchantment)){
+            return ConfigManager.projectileEnchantDataMap.get(enchantment);
+        }
+        return new DamageEnchantData();
+    }
+
+    public static DamageEnchantData getWeaponEnchantData(Enchantment enchantment){
+        if(hasWeaponEnchantData(enchantment)){
+            return ConfigManager.weaponEnchantDataMap.get(enchantment);
+        }
+        return new DamageEnchantData();
+    }
+
+    public static ArmorEnchantData getArmorEnchantData(Enchantment enchantment){
+        if(hasArmorEnchantData(enchantment)){
+            return ConfigManager.armorEnchantDataMap.get(enchantment);
+        }
+        return new ArmorEnchantData();
+    }
+
+    public static ArmorData getNewArmorData(ItemStack armor){
         ArmorData output = ConfigManager.armorDataMap.get(armor.getType());
         if(output == null){
             return new ArmorData();
+        }
+        Map<Enchantment, Integer> enchants = armor.getItemMeta().getEnchants();
+        if(enchants != null && enchants.size() > 0){
+            for(Enchantment enchant : enchants.keySet()){
+                if(hasArmorEnchantData(enchant)){
+                    ArmorEnchantData data = getArmorEnchantData(enchant);
+                    output = output.merge(data.getEnchant(enchants.get(enchant)));
+                }
+            }
         }
         return output;
     }

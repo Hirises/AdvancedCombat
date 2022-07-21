@@ -1182,26 +1182,21 @@
   sharpness: #날카로움
     기본:
       1:
-        데미지: 5
-        속성: "Physics"
+        데미지: 3
+        속성: "Const"
     레벨:
       1:
-        데미지: 5
-        속성: "Physics"
+        데미지: 3
+        속성: "Const"
   bane_of_arthropods: #살충
     기본:
       1:
         데미지: 10
-        속성: "Physics"
+        속성: "Magic"
     레벨:
       1:
         데미지: 10
-        속성: "Physics"
-    대상:
-      - "SPIDER"
-      - "CAVE_SPIDER"
-      - "SILVERFISH"
-      - "ENDERMITE"
+        속성: "Magic"
   smite: #강타
     기본:
       1:
@@ -1211,19 +1206,6 @@
       1:
         데미지: 10
         속성: "Physics"
-    대상:
-      - "SKELETON"
-      - "ZOMBIE"
-      - "WITHER"
-      - "WITHER_SKELETON"
-      - "ZOMBIFIED_PIGLIN"
-      - "SKELETON_HORSE"
-      - "PHANTOM"
-      - "DROWNED"
-      - "HUSK"
-      - "STRAY"
-      - "ZOMBIE_VILLAGER"
-      - "ZOMBIE_HORSE"
   piercing: #찌르기
     기본:
       1:
@@ -1254,10 +1236,11 @@
         타입:
           - "Projectile"
     레벨:
-      데미지: 5
-      속성: "Physics"
-      타입:
-        - "Projectile"
+      1:
+        데미지: 5
+        속성: "Physics"
+        타입:
+          - "Projectile"
 기타:
   데미지보정:
     플레이어: 1.0
