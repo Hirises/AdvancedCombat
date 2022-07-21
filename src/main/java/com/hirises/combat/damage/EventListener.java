@@ -15,10 +15,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -30,7 +27,12 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.UUID;
 
 public class EventListener implements Listener {
@@ -97,6 +99,15 @@ public class EventListener implements Listener {
                             UUID.randomUUID(),
                             Keys.Attribute_Modifier.toString(),
                             CombatManager.getNewWeaponData(target).getAttackSpeed() - ConfigManager.bearHand.getAttackSpeed(),
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            EquipmentSlot.HAND
+                    )
+            );
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE,
+                    new AttributeModifier(
+                            UUID.randomUUID(),
+                            Keys.Attribute_Modifier.toString(),
+                            10,
                             AttributeModifier.Operation.ADD_NUMBER,
                             EquipmentSlot.HAND
                     )
@@ -209,9 +220,9 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEatFood(PlayerItemConsumeEvent event){
         ItemStack food = event.getItem();
-        event.setCancelled(true);
         Player player = event.getPlayer();
         if(ItemUtil.isExist(food) && CombatManager.hasFoodData(food)){
+            event.setCancelled(true);
             FoodData data = CombatManager.getFoodData(food);
             ItemStack item;
             if(player.getInventory().getItemInMainHand().getType().equals(food.getType())){
@@ -234,17 +245,21 @@ public class EventListener implements Listener {
                     }
                 }
             }
-        }
-        if(food.getAmount() > 1){
-            if(player.getGameMode() != GameMode.CREATIVE){
-                ItemUtil.operateAmount(food, -1);
-            }
+        }else if(food.getType().equals(Material.POTION)){
+            return;
         }else{
-            if(player.getGameMode() != GameMode.CREATIVE) {
-                if (player.getInventory().getItemInMainHand().equals(food)) {
-                    player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-                } else {
-                    player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+            event.setCancelled(true);
+            if(food.getAmount() > 1){
+                if(player.getGameMode() != GameMode.CREATIVE){
+                    ItemUtil.operateAmount(food, -1);
+                }
+            }else{
+                if(player.getGameMode() != GameMode.CREATIVE) {
+                    if (player.getInventory().getItemInMainHand().equals(food)) {
+                        player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+                    } else {
+                        player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+                    }
                 }
             }
         }
@@ -302,6 +317,75 @@ public class EventListener implements Listener {
             }
         }else{
             NBTTagStore.set(projectile, Keys.Projectile_Damage.toString(), ConfigManager.normalArrow);
+        }
+    }
+
+    @EventHandler
+    public void onPotionEffect(PotionSplashEvent event){
+        ThrownPotion potion = event.getPotion();
+        if(!(potion.getShooter() instanceof Player)){
+            return;
+        }
+        Player shooter = (Player) potion.getShooter();
+        for(PotionEffect effect : potion.getEffects()){
+            boolean negative = false;
+            boolean positive = false;
+            switch (effect.getType().getKey().getKey()){
+                case "speed":
+                case "haste":
+                case "strength":
+                case "instant_health":
+                case "jump_boost":
+                case "regeneration":
+                case "resistance":
+                case "fire_resistance":
+                case "water_breathing":
+                case "night_vision":
+                case "invisibility":
+                case "health_boost":
+                case "absorption":
+                case "saturation":
+                case "luck":
+                case "slow_falling":
+                case "conduit_power":
+                case "dolphins_grace":
+                    positive = true;
+                    break;
+                case "slowness":
+                case "mining_fatigue":
+                case "instant_damage":
+                case "nausea":
+                case "blindness":
+                case "hunger":
+                case "weakness":
+                case "poison":
+                case "wither":
+                case "glowing":
+                case "unluck":
+                case "darkness":
+                    negative = true;
+                    break;
+                case "levitation":
+                case "bad_omen":
+                case "hero_of_the_village":
+                    break;
+            }
+            Collection<LivingEntity> affected = event.getAffectedEntities();
+            if(negative){
+                affected.remove(shooter);
+            }
+            if(positive){
+                if(affected.contains(shooter)){
+                    affected.clear();
+                    affected.add(shooter);
+                }else{
+                    affected.clear();
+                }
+            }
+            event.setCancelled(true);
+            for(LivingEntity entity : affected){
+                entity.addPotionEffect(effect);
+            }
         }
     }
 
@@ -413,7 +497,7 @@ public class EventListener implements Listener {
                     }
                 }
                 DamageApplier applier = weapon.getDamage();
-                finalApplier.merge(applier);
+                finalApplier.merge(applier.multiply(CombatManager.getDamageIncrease(damager)));
             }
             finalApplier.apply(entity, damageRate);
         }

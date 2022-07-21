@@ -40,6 +40,9 @@ public class PartialDamageApplier{
             Damage damage = getDamages().get(i);
             finalDamage += damage.getFinalDamage(entity, partialPenetrates.get(i));
         }
+        if(finalDamage < 0){
+            return 0;
+        }
         return finalDamage;
     }
 

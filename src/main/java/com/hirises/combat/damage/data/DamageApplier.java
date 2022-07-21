@@ -66,7 +66,7 @@ public class DamageApplier implements DataUnit {
     }
 
     public void apply(LivingEntity entity, double amplification){
-        CombatManager.damage(entity, getFinalDamage(entity) * amplification);
+        CombatManager.damage(entity, getFinalDamage(entity) * amplification * CombatManager.getDamageReduceRate(entity));
 
         if(ConfigManager.useDamageMeter){
             for(Damage damage : damages){

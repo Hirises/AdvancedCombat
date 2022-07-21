@@ -5,11 +5,9 @@ import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
 import com.hirises.combat.damage.data.*;
-import com.hirises.core.armorstand.ArmorStandWrapper;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.task.CancelableTask;
 import com.hirises.core.util.ItemUtil;
-import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -245,6 +244,25 @@ public class CombatManager {
             weight += getNewArmorData(boots).getWeight();
         }
         return weight;
+    }
+
+    public static double getDamageReduceRate(LivingEntity entity){
+        double rate = 1;
+        if(entity.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE)){
+            rate -= (entity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE).getAmplifier() + 1) * 0.2;
+        }
+        return rate;
+    }
+
+    public static double getDamageIncrease(LivingEntity entity){
+        double increase = 1;
+        if(entity.hasPotionEffect(PotionEffectType.INCREASE_DAMAGE)){
+            increase += (entity.getPotionEffect(PotionEffectType.INCREASE_DAMAGE).getAmplifier() + 1) * 0.1;
+        }
+        if(entity.hasPotionEffect(PotionEffectType.WEAKNESS)){
+            increase -= (entity.getPotionEffect(PotionEffectType.WEAKNESS).getAmplifier() + 1) * 0.15;
+        }
+        return increase;
     }
 
     public static void spawnDamageMeter(Location loc, String string){
