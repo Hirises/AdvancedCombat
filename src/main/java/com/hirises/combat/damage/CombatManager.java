@@ -8,6 +8,7 @@ import com.hirises.combat.damage.data.*;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.task.CancelableTask;
 import com.hirises.core.util.ItemUtil;
+import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -251,6 +252,9 @@ public class CombatManager {
         if(entity.hasPotionEffect(PotionEffectType.DAMAGE_RESISTANCE)){
             rate -= (entity.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE).getAmplifier() + 1) * 0.2;
         }
+        if(rate < 0){
+            return 0;
+        }
         return rate;
     }
 
@@ -261,6 +265,9 @@ public class CombatManager {
         }
         if(entity.hasPotionEffect(PotionEffectType.WEAKNESS)){
             increase -= (entity.getPotionEffect(PotionEffectType.WEAKNESS).getAmplifier() + 1) * 0.15;
+        }
+        if(increase < 0){
+            return 0;
         }
         return increase;
     }

@@ -2,6 +2,7 @@ package com.hirises.combat.damage.data;
 
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.damage.CombatManager;
+import com.hirises.core.util.Util;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.*;
@@ -47,13 +48,14 @@ public class PartialDamageApplier{
     }
 
     public void apply(LivingEntity entity, double amplification) {
-        CombatManager.damage(entity, getFinalDamage(entity) * amplification * CombatManager.getDamageReduceRate(entity));
+        double finalRate = amplification * CombatManager.getDamageReduceRate(entity);
+        CombatManager.damage(entity, getFinalDamage(entity) * finalRate);
 
         if(ConfigManager.useDamageMeter){
             Map<DamageTag, Double> finalDamageType = new HashMap<>();
             for(int i = 0; i < getDamages().size(); i++){
                 Damage damage = getDamages().get(i);
-                double splitDamage = damage.getFinalDamage(entity, partialPenetrates.get(i)) * amplification;
+                double splitDamage = damage.getFinalDamage(entity, partialPenetrates.get(i)) * finalRate;
                 finalDamageType.put(damage.getDamageTag(), finalDamageType.getOrDefault(damage.getDamageTag(), 0.0) + splitDamage);
             }
             for(DamageTag tag : finalDamageType.keySet()){

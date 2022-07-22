@@ -66,11 +66,12 @@ public class DamageApplier implements DataUnit {
     }
 
     public void apply(LivingEntity entity, double amplification){
-        CombatManager.damage(entity, getFinalDamage(entity) * amplification * CombatManager.getDamageReduceRate(entity));
+        double finalRate = amplification * CombatManager.getDamageReduceRate(entity);
+        CombatManager.damage(entity, getFinalDamage(entity) * finalRate);
 
         if(ConfigManager.useDamageMeter){
             for(Damage damage : damages){
-                double splitDamage = damage.getFinalDamage(entity, penetrates) * amplification;
+                double splitDamage = damage.getFinalDamage(entity, penetrates) * finalRate;
                 if(splitDamage > 0){
                     CombatManager.spawnDamageMeter(entity.getEyeLocation(),
                             ConfigManager.damageMeterData.getDamageMeterString(damage.getDamageTag(), splitDamage));

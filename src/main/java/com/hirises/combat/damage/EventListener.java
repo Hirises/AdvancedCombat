@@ -355,36 +355,6 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onPotionDamageApplied(EntityPotionEffectEvent event){
-        PotionEffect effect = event.getNewEffect();
-        if(effect == null){
-            return;
-        }
-        if(!(event.getEntity() instanceof LivingEntity)){
-            return;
-        }
-        Util.logging(event.getCause());
-        LivingEntity entity = (LivingEntity) event.getEntity();
-        if(effect.getType().equals(PotionEffectType.HARM)){
-            event.setCancelled(true);
-            double damage = 30;
-            if(event.getCause().equals(EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD)){
-                damage = 3;
-            }
-            DamageApplier applier = new DamageApplier((effect.getAmplifier() + 1) * damage, new DamageTag(DamageTag.AttackType.Magic));
-            applier.apply(entity);
-        }
-        if(effect.getType().equals(PotionEffectType.HEAL)){
-            event.setCancelled(true);
-            double heal = 30;
-            if(event.getCause().equals(EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD)){
-                heal = 3;
-            }
-            CombatManager.heal(entity, (effect.getAmplifier() + 1) * heal);
-        }
-    }
-
-    @EventHandler
     public void onEffectApplied(AreaEffectCloudApplyEvent event){
         AreaEffectCloud potion = event.getEntity();
         if(!NBTTagStore.containKey(potion, Keys.Potion_Effect_Applied.toString())){
@@ -393,13 +363,13 @@ public class EventListener implements Listener {
         OfflinePlayer shooter = Bukkit.getOfflinePlayer(UUID.fromString(NBTTagStore.get(potion, Keys.Potion_Effect_Applied.toString(), String.class)));
         event.setCancelled(true);
         if(!shooter.isOnline()){
-            applyPotionEffect(potion.getCustomEffects(), null, event.getAffectedEntities());
+            applyPotionEffect(potion.getCustomEffects(), null, event.getAffectedEntities(), true);
         }else{
-            applyPotionEffect(potion.getCustomEffects(), shooter.getPlayer(), event.getAffectedEntities());
+            applyPotionEffect(potion.getCustomEffects(), shooter.getPlayer(), event.getAffectedEntities(), true);
         }
     }
 
-    private void applyPotionEffect(Collection<PotionEffect> effects, Player shooter, Collection<LivingEntity> affected) {
+    private void applyPotionEffect(Collection<PotionEffect> effects, Player shooter, Collection<LivingEntity> affected, boolean reduced) {
         for(PotionEffect effect : effects){
             var negative = false;
             var positive = false;
@@ -455,8 +425,32 @@ public class EventListener implements Listener {
                     affected.clear();
                 }
             }
-            for(LivingEntity entity : affected){
-                entity.addPotionEffect(effect);
+            if(effect.getType().equals(PotionEffectType.HARM)){
+                if(reduced){
+                    for(LivingEntity entity : affected){
+                        DamageApplier applier = new DamageApplier((effect.getAmplifier() + 1) * 3, new DamageTag(DamageTag.AttackType.Magic));
+                        applier.apply(entity);
+                    }
+                }else{
+                    for(LivingEntity entity : affected){
+                        DamageApplier applier = new DamageApplier((effect.getAmplifier() + 1) * 30, new DamageTag(DamageTag.AttackType.Magic));
+                        applier.apply(entity);
+                    }
+                }
+            }else if(effect.getType().equals(PotionEffectType.HEAL)){
+                if(reduced){
+                    for(LivingEntity entity : affected){
+                        CombatManager.heal(entity, (effect.getAmplifier() + 1) * 3);
+                    }
+                }else{
+                    for(LivingEntity entity : affected){
+                        CombatManager.heal(entity, (effect.getAmplifier() + 1) * 30);
+                    }
+                }
+            }else{
+                for(LivingEntity entity : affected){
+                    entity.addPotionEffect(effect);
+                }
             }
         }
     }
@@ -469,7 +463,7 @@ public class EventListener implements Listener {
         }
         Player shooter = (Player) potion.getShooter();
         event.setCancelled(true);
-        applyPotionEffect(potion.getEffects(), shooter, event.getAffectedEntities());
+        applyPotionEffect(potion.getEffects(), shooter, event.getAffectedEntities(), false);
     }
 
     @EventHandler
@@ -522,6 +516,11 @@ public class EventListener implements Listener {
                     //낙하
                     applier = new DamageApplier(event.getDamage() * ConfigManager.weightData.getFallDamageRate(CombatManager.getWeight(entity)),
                             new DamageTag(DamageTag.AttackType.Const, DamageTag.DamageType.Fall));
+                    break;
+                case POISON:
+                case WITHER:
+                    //독, 위더
+                    applier = new DamageApplier(event.getDamage() * 0.5, new DamageTag(DamageTag.AttackType.Const));
                     break;
                 default:
                     //고정 데미지
