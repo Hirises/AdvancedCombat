@@ -13,6 +13,7 @@ import com.hirises.core.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
@@ -27,13 +28,12 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class EventListener implements Listener {
 
@@ -321,15 +321,88 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onPotionEffect(PotionSplashEvent event){
-        ThrownPotion potion = event.getPotion();
-        if(!(potion.getShooter() instanceof Player)){
+    public void onProjectileHit(ProjectileHitEvent event){
+        Projectile entity = event.getEntity();
+        if(!(entity instanceof ThrownPotion)){
             return;
         }
-        Player shooter = (Player) potion.getShooter();
-        for(PotionEffect effect : potion.getEffects()){
-            boolean negative = false;
-            boolean positive = false;
+        ThrownPotion potion = (ThrownPotion) entity;
+        if(!potion.getItem().getType().equals(Material.LINGERING_POTION)){
+            return;
+        }
+        entity.getLocation().getWorld().spawn(entity.getLocation(), AreaEffectCloud.class, value -> {
+            value.setDuration(400);
+            value.setRadius(3);
+            value.setReapplicationDelay(20);
+            value.setWaitTime(10);
+            value.clearCustomEffects();
+            for(PotionEffect effect : potion.getEffects()){
+                value.addCustomEffect(effect, true);
+                value.setColor(effect.getType().getColor());
+            }
+            if(entity.getShooter() instanceof Player){
+                NBTTagStore.set(value, Keys.Potion_Effect_Applied.toString(), ((Player)potion.getShooter()).getUniqueId().toString());
+            }
+            NBTTagStore.set(value, Keys.Potion_Live.toString(), true);
+        });
+    }
+
+    @EventHandler
+    public void onEntitySpawn(EntitySpawnEvent event){
+        if(event.getEntity() instanceof AreaEffectCloud && !NBTTagStore.containKey(event.getEntity(), Keys.Potion_Live.toString())){
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPotionDamageApplied(EntityPotionEffectEvent event){
+        PotionEffect effect = event.getNewEffect();
+        if(effect == null){
+            return;
+        }
+        if(!(event.getEntity() instanceof LivingEntity)){
+            return;
+        }
+        Util.logging(event.getCause());
+        LivingEntity entity = (LivingEntity) event.getEntity();
+        if(effect.getType().equals(PotionEffectType.HARM)){
+            event.setCancelled(true);
+            double damage = 30;
+            if(event.getCause().equals(EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD)){
+                damage = 3;
+            }
+            DamageApplier applier = new DamageApplier((effect.getAmplifier() + 1) * damage, new DamageTag(DamageTag.AttackType.Magic));
+            applier.apply(entity);
+        }
+        if(effect.getType().equals(PotionEffectType.HEAL)){
+            event.setCancelled(true);
+            double heal = 30;
+            if(event.getCause().equals(EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD)){
+                heal = 3;
+            }
+            CombatManager.heal(entity, (effect.getAmplifier() + 1) * heal);
+        }
+    }
+
+    @EventHandler
+    public void onEffectApplied(AreaEffectCloudApplyEvent event){
+        AreaEffectCloud potion = event.getEntity();
+        if(!NBTTagStore.containKey(potion, Keys.Potion_Effect_Applied.toString())){
+            return;
+        }
+        OfflinePlayer shooter = Bukkit.getOfflinePlayer(UUID.fromString(NBTTagStore.get(potion, Keys.Potion_Effect_Applied.toString(), String.class)));
+        event.setCancelled(true);
+        if(!shooter.isOnline()){
+            applyPotionEffect(potion.getCustomEffects(), null, event.getAffectedEntities());
+        }else{
+            applyPotionEffect(potion.getCustomEffects(), shooter.getPlayer(), event.getAffectedEntities());
+        }
+    }
+
+    private void applyPotionEffect(Collection<PotionEffect> effects, Player shooter, Collection<LivingEntity> affected) {
+        for(PotionEffect effect : effects){
+            var negative = false;
+            var positive = false;
             switch (effect.getType().getKey().getKey()){
                 case "speed":
                 case "haste":
@@ -368,25 +441,35 @@ public class EventListener implements Listener {
                 case "levitation":
                 case "bad_omen":
                 case "hero_of_the_village":
+                default:
                     break;
             }
-            Collection<LivingEntity> affected = event.getAffectedEntities();
-            if(negative){
+            if(negative && shooter != null){
                 affected.remove(shooter);
             }
             if(positive){
-                if(affected.contains(shooter)){
+                if(shooter != null && affected.contains(shooter)){
                     affected.clear();
                     affected.add(shooter);
                 }else{
                     affected.clear();
                 }
             }
-            event.setCancelled(true);
             for(LivingEntity entity : affected){
                 entity.addPotionEffect(effect);
             }
         }
+    }
+
+    @EventHandler
+    public void onPotionEffect(PotionSplashEvent event){
+        ThrownPotion potion = event.getPotion();
+        if(!(potion.getShooter() instanceof Player)){
+            return;
+        }
+        Player shooter = (Player) potion.getShooter();
+        event.setCancelled(true);
+        applyPotionEffect(potion.getEffects(), shooter, event.getAffectedEntities());
     }
 
     @EventHandler

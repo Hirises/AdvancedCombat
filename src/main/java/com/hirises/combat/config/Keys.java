@@ -12,6 +12,8 @@ public enum Keys {
     Weapon_Data("conbat_weaponData"),
     Food_Data("conbat_foodData"),
     Projectile_Data("conbat_projectileData"),
+    Potion_Effect_Applied("combat_potionEffectApplied"),
+    Potion_Live("combat_potionLive"),
     ;
 
     private String key;
