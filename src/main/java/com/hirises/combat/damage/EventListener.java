@@ -8,12 +8,10 @@ import com.hirises.combat.item.CustomItemManager;
 import com.hirises.combat.item.ItemChangeEvent;
 import com.hirises.combat.item.ItemRegisteredEvent;
 import com.hirises.core.store.NBTTagStore;
+import com.hirises.core.task.CancelableTask;
 import com.hirises.core.util.ItemUtil;
 import com.hirises.core.util.Util;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.*;
@@ -28,12 +26,11 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class EventListener implements Listener {
 
@@ -295,9 +292,63 @@ public class EventListener implements Listener {
     @EventHandler
     public void onShootBow(EntityShootBowEvent event){
         Projectile projectile = (Projectile) event.getProjectile();
-        LivingEntity entity = event.getEntity();
-        ProjectileData data = CombatManager.getProjectileData(entity);
+        if(!(event.getEntity() instanceof Player)){
+            return;
+        }
+        Player player = (Player) event.getEntity();
+        ProjectileData data = CombatManager.getProjectileData(player);
         NBTTagStore.set(projectile, Keys.Projectile_Damage.toString(), data.getDamage().multiply(event.getForce()));
+
+        Vector dir = player.getLocation().getDirection();
+        List<Entity> targets = Util.getNearByEntity(player.getLocation(), 75, 75, 75, LivingEntity.class, true);
+        if(targets.size() <= 0){
+            return;
+        }
+        Entity target = null;
+        boolean isPlayer = false;
+        double distance = -9;
+        double _distance = -9;
+        for(Entity e : targets){
+            if(e.equals(player) || e.equals(projectile) || e instanceof ArmorStand){
+                continue;
+            }
+            _distance = dir.normalize().dot(e.getLocation().toVector().subtract(player.getLocation().toVector()).normalize());
+            if(e instanceof Player){
+                if(!isPlayer || (_distance + 0.2) > distance){
+                    isPlayer = true;
+                    target = e;
+                    distance = _distance;
+                }
+            }else if(!isPlayer && _distance > distance){
+                target = e;
+                distance = _distance;
+            }
+        }
+        if(target == null){
+            return;
+        }
+        Util.logging(target);
+
+        Entity finalTarget = target;
+        new CancelableTask(AdvancedCombat.getInst(), 0, 1){
+            @Override
+            public void run() {
+                if(!projectile.isValid() || projectile.isOnGround()){
+                    cancel();
+                }
+                Vector arrowDir = projectile.getVelocity();
+                double power = arrowDir.length();
+                Location loc = projectile.getLocation();
+                Vector targetDir = finalTarget.getLocation().toVector().subtract(loc.toVector());
+                float angle = arrowDir.angle(targetDir);
+                double maxAngle = (Math.PI / 130f);
+                if(angle > maxAngle){
+                    angle = (float) maxAngle;
+                }
+                Vector newDir = arrowDir.rotateAroundAxis(targetDir.crossProduct(arrowDir), -angle);
+                projectile.setVelocity(newDir.normalize().multiply(power));
+            }
+        };
     }
 
     @EventHandler
