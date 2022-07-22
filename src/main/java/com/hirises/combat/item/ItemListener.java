@@ -17,9 +17,7 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,6 +113,48 @@ public class ItemListener implements Listener {
         }
 
         inventory.setContents(contents);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onEntitySpawn(EntitySpawnEvent event){
+        Entity entity = event.getEntity();
+        if(entity instanceof LivingEntity){
+            LivingEntity livingEntity = (LivingEntity) entity;
+
+            for(EquipmentSlot slot : EquipmentSlot.values()){
+                ItemRegisteredEvent event1 = new ItemRegisteredEvent(livingEntity.getEquipment().getItem(slot), ItemRegisteredEvent.Cause.Chest);
+                Bukkit.getPluginManager().callEvent(event1);
+
+                if(event1.isCanceled()){
+                    livingEntity.getEquipment().setItem(slot, NBTTagStore.set(new ItemStack(Material.AIR), Keys.Item_Checked.toString(), true));
+                }else{
+                    livingEntity.getEquipment().setItem(slot, NBTTagStore.set(event1.getItemStack(), Keys.Item_Checked.toString(), true));
+                }
+            }
+        }
+        if(entity instanceof InventoryHolder){
+            InventoryHolder holder = (InventoryHolder) entity;
+            ItemStack[] contents = holder.getInventory().getContents();
+            for(int index = 0; index < contents.length; index++){
+                if(NBTTagStore.containKey(contents[index], Keys.Item_Checked.toString())){
+                    continue;
+                }
+
+                if(!ItemUtil.isExist(contents[index])){
+                    continue;
+                }
+
+                ItemRegisteredEvent event1 = new ItemRegisteredEvent(contents[index], ItemRegisteredEvent.Cause.Chest);
+                Bukkit.getPluginManager().callEvent(event1);
+
+                if(event1.isCanceled()){
+                    contents[index] = NBTTagStore.set(new ItemStack(Material.AIR), Keys.Item_Checked.toString(), true);
+                }else{
+                    contents[index] = NBTTagStore.set(event1.getItemStack(), Keys.Item_Checked.toString(), true);
+                }
+            }
+            holder.getInventory().setContents(contents);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

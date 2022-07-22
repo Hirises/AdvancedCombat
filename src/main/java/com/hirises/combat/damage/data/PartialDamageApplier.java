@@ -47,7 +47,7 @@ public class PartialDamageApplier{
     }
 
     public void apply(LivingEntity entity, double amplification) {
-        CombatManager.damage(entity, getFinalDamage(entity) * amplification);
+        CombatManager.damage(entity, getFinalDamage(entity) * amplification * CombatManager.getDamageReduceRate(entity));
 
         if(ConfigManager.useDamageMeter){
             Map<DamageTag, Double> finalDamageType = new HashMap<>();
