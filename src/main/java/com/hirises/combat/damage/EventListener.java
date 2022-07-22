@@ -305,21 +305,19 @@ public class EventListener implements Listener {
             return;
         }
         Entity target = null;
-        boolean isPlayer = false;
-        double distance = -9;
-        double _distance = -9;
+        double distance = 0.5;
+        double _distance = 0.5;
         for(Entity e : targets){
             if(e.equals(player) || e.equals(projectile) || e instanceof ArmorStand){
                 continue;
             }
             _distance = dir.normalize().dot(e.getLocation().toVector().subtract(player.getLocation().toVector()).normalize());
             if(e instanceof Player){
-                if(!isPlayer || (_distance + 0.2) > distance){
-                    isPlayer = true;
+                if((_distance + 0.2) > distance){
                     target = e;
                     distance = _distance;
                 }
-            }else if(!isPlayer && _distance > distance){
+            }else if(_distance > distance){
                 target = e;
                 distance = _distance;
             }
@@ -327,8 +325,8 @@ public class EventListener implements Listener {
         if(target == null){
             return;
         }
-        Util.logging(target);
 
+        double maxAngle = (Math.PI / (180f - (event.getForce() * 50)));
         Entity finalTarget = target;
         new CancelableTask(AdvancedCombat.getInst(), 0, 1){
             @Override
@@ -341,7 +339,6 @@ public class EventListener implements Listener {
                 Location loc = projectile.getLocation();
                 Vector targetDir = finalTarget.getLocation().toVector().subtract(loc.toVector());
                 float angle = arrowDir.angle(targetDir);
-                double maxAngle = (Math.PI / 130f);
                 if(angle > maxAngle){
                     angle = (float) maxAngle;
                 }
