@@ -1,10 +1,15 @@
-package com.hirises.combat.damage.data;
+package com.hirises.combat.damage.calculate;
 
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
 
+//단일 방어력 객체
+@Immutable
+@ThreadSafe
 public class Defence implements DataUnit, IHasDamageTagValue {
     private double defence;
     private DamageTag damageTag;
@@ -19,6 +24,22 @@ public class Defence implements DataUnit, IHasDamageTagValue {
         this.damageTag = damageTag;
     }
 
+    //해당 데미지 종류에 대한 최종적으로 적용되는 방어력을 반환
+    public double getFinalDefence(DamageTag damageTag, List<DefencePenetrate> penetrates){
+        if(this.damageTag.checkDefenceType(damageTag)){  //방어 가능한가?
+            double output = defence;
+            for(DefencePenetrate penetrate : penetrates){   //방어관통 처리
+                output = penetrate.reduceDefence(output, this.damageTag);
+            }
+            return output;
+        }
+        return 0;
+    }
+
+    public double getDefence() {
+        return defence;
+    }
+
     @Override
     public DamageTag getDamageTag() {
         return damageTag;
@@ -27,21 +48,6 @@ public class Defence implements DataUnit, IHasDamageTagValue {
     @Override
     public double getValue() {
         return defence;
-    }
-
-    public double getDefence() {
-        return defence;
-    }
-
-    public double getFinalDefence(DamageTag damageTag, List<DefencePenetrate> penetrates){
-        if(this.damageTag.checkDefenceType(damageTag)){
-            double output = defence;
-            for(DefencePenetrate penetrate : penetrates){
-                output = penetrate.reduceDefence(output, this.damageTag);
-            }
-            return output;
-        }
-        return 0;
     }
 
     @Override

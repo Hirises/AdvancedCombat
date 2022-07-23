@@ -1,19 +1,35 @@
 package com.hirises.combat.damage.data;
 
+import com.hirises.combat.damage.calculate.Damage;
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+//데미지를 증가시키는 형식의 인첸트 데이터 (무기, 발사체)
+@Immutable
+@ThreadSafe
 public class DamageEnchantData implements DataUnit {
-    private List<Damage> initialDamage;
-    private List<Damage> increaseDamage;
+    private List<Damage> initialDamage;     //기본 데미지 증가량
+    private List<Damage> increaseDamage;    //레벨당 데미지 증가량
 
     public DamageEnchantData(){
         initialDamage = new ArrayList<>();
         increaseDamage = new ArrayList<>();
+    }
+
+    //해당 인첸트 레벨에 대한 데미지 증가량을 반환
+    public List<Damage> getEnchant(int level){
+        List<Damage> result = new ArrayList<>();
+        result.addAll(initialDamage);
+        for(int i = 1; i < level; i++){
+            result.addAll(increaseDamage);
+        }
+        return result;
     }
 
     public List<Damage> getIncreaseDamage() {
@@ -22,15 +38,6 @@ public class DamageEnchantData implements DataUnit {
 
     public List<Damage> getInitialDamage() {
         return Collections.unmodifiableList(initialDamage);
-    }
-
-    public List<Damage> getEnchant(int level){
-        List<Damage> result = new ArrayList<>();
-        result.addAll(initialDamage);
-        for(int i = 1; i < level; i++){
-            result.addAll(increaseDamage);
-        }
-        return result;
     }
 
     @Override

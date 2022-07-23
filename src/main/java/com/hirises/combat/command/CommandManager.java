@@ -2,13 +2,10 @@ package com.hirises.combat.command;
 
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
-import com.hirises.combat.damage.CombatManager;
 import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.util.ItemUtil;
-import com.hirises.core.util.Util;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -24,6 +21,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//편의성 커맨드
 public class CommandManager implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -32,9 +30,11 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         }
         switch (args[0]){
             case "reload":
+                //컨피그 리로드
                 ConfigManager.init();
                 return true;
             case "lore":{
+                //아이템 로어 업데이트
                 if(!(sender instanceof Player)){
                     return false;
                 }
@@ -49,6 +49,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 return true;
             }
             case "lore-all":{
+                //인벤에 있는 모든 아이템 로어 업데이트
                 if(!(sender instanceof Player)){
                     return false;
                 }
@@ -64,6 +65,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 return true;
             }
             case "attribute":{
+                //아이템 로어 재적용 (인첸트등 재계산)
                 if(!(sender instanceof Player)){
                     return false;
                 }
@@ -71,14 +73,14 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 if(!ItemUtil.isExist(item)){
                     return false;
                 }
-                if(CombatManager.hasArmorData(item)){
-                    NBTTagStore.set(item, Keys.Armor_Data.toString(), CombatManager.getNewArmorData(item));
+                if(ConfigManager.hasArmorData(item)){
+                    NBTTagStore.set(item, Keys.Armor_Data.toString(), ConfigManager.getNewArmorData(item));
                 }
-                if(CombatManager.hasProjectileData(item)){
-                    NBTTagStore.set(item, Keys.Projectile_Data.toString(), CombatManager.getNewProjectileData(item));
+                if(ConfigManager.hasProjectileData(item)){
+                    NBTTagStore.set(item, Keys.Projectile_Data.toString(), ConfigManager.getNewProjectileData(item));
                 }
-                if(CombatManager.hasWeaponData(item)){
-                    NBTTagStore.set(item, Keys.Weapon_Data.toString(), CombatManager.getNewWeaponData(item));
+                if(ConfigManager.hasWeaponData(item)){
+                    NBTTagStore.set(item, Keys.Weapon_Data.toString(), ConfigManager.getNewWeaponData(item));
                 }
                 if(ConfigManager.useItemLore){
                     ItemMeta meta = item.getItemMeta();
@@ -89,6 +91,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 return true;
             }
             case "attribute-all":{
+                //인벤에 있는 모든 아이템 로어 재적용 (인첸트등 재계산)
                 if(!(sender instanceof Player)){
                     return false;
                 }
@@ -96,14 +99,14 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                     if(!ItemUtil.isExist(item)){
                         continue;
                     }
-                    if(CombatManager.hasArmorData(item)){
-                        NBTTagStore.set(item, Keys.Armor_Data.toString(), CombatManager.getNewArmorData(item));
+                    if(ConfigManager.hasArmorData(item)){
+                        NBTTagStore.set(item, Keys.Armor_Data.toString(), ConfigManager.getNewArmorData(item));
                     }
-                    if(CombatManager.hasProjectileData(item)){
-                        NBTTagStore.set(item, Keys.Projectile_Data.toString(), CombatManager.getNewProjectileData(item));
+                    if(ConfigManager.hasProjectileData(item)){
+                        NBTTagStore.set(item, Keys.Projectile_Data.toString(), ConfigManager.getNewProjectileData(item));
                     }
-                    if(CombatManager.hasWeaponData(item)){
-                        NBTTagStore.set(item, Keys.Weapon_Data.toString(), CombatManager.getNewWeaponData(item));
+                    if(ConfigManager.hasWeaponData(item)){
+                        NBTTagStore.set(item, Keys.Weapon_Data.toString(), ConfigManager.getNewWeaponData(item));
                     }
                     if(ConfigManager.useItemLore){
                         ItemMeta meta = item.getItemMeta();
@@ -115,6 +118,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 return true;
             }
             case "attribute-chest":{
+                //바라보고 있는 상자에 있는 모든 아이템 로어 재적용 (인첸트등 재계산)
                 if(!(sender instanceof Player)){
                     return false;
                 }
@@ -125,14 +129,14 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                         if(!ItemUtil.isExist(item)){
                             continue;
                         }
-                        if(CombatManager.hasArmorData(item)){
-                            NBTTagStore.set(item, Keys.Armor_Data.toString(), CombatManager.getNewArmorData(item));
+                        if(ConfigManager.hasArmorData(item)){
+                            NBTTagStore.set(item, Keys.Armor_Data.toString(), ConfigManager.getNewArmorData(item));
                         }
-                        if(CombatManager.hasProjectileData(item)){
-                            NBTTagStore.set(item, Keys.Projectile_Data.toString(), CombatManager.getNewProjectileData(item));
+                        if(ConfigManager.hasProjectileData(item)){
+                            NBTTagStore.set(item, Keys.Projectile_Data.toString(), ConfigManager.getNewProjectileData(item));
                         }
-                        if(CombatManager.hasWeaponData(item)){
-                            NBTTagStore.set(item, Keys.Weapon_Data.toString(), CombatManager.getNewWeaponData(item));
+                        if(ConfigManager.hasWeaponData(item)){
+                            NBTTagStore.set(item, Keys.Weapon_Data.toString(), ConfigManager.getNewWeaponData(item));
                         }
                         if(ConfigManager.useItemLore){
                             ItemMeta meta = item.getItemMeta();

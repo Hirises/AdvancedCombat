@@ -1,19 +1,21 @@
 package com.hirises.combat.config;
 
 import com.hirises.combat.AdvancedCombat;
-import com.hirises.combat.damage.CombatManager;
+import com.hirises.combat.damage.calculate.DamageApplier;
+import com.hirises.combat.damage.calculate.DamageTag;
+import com.hirises.combat.damage.calculate.IHasDamageTagValue;
 import com.hirises.combat.damage.data.*;
 import com.hirises.combat.item.CustomItemManager;
 import com.hirises.core.data.TimeUnit;
+import com.hirises.core.store.NBTTagStore;
 import com.hirises.core.store.YamlStore;
+import com.hirises.core.util.ItemUtil;
 import com.hirises.core.util.Util;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,7 +27,9 @@ public class ConfigManager {
     public final static YamlStore config = new YamlStore(AdvancedCombat.getInst(), "config.yml");
     public static YamlStore settings = new YamlStore(AdvancedCombat.getInst(), "settings.yml");
 
+    //<editor-fold desc="Record 구조체 데이터">
     public static boolean useDamageMeter = false;
+    //아머스텐드 데미지 미터
     public record DamageMeterData(
       String format,
       int duration,
@@ -61,7 +65,7 @@ public class ConfigManager {
                 case Const -> color = constColor;
             }
 
-            for(DamageTag.DamageType type : tag.getDamageTypes()){
+            for(DamageTag.DamageAttribute type : tag.getDamageAttributes()){
                 switch (type){
                     case Fire -> symbol += fireSymbol;
                     case Projectile -> symbol += projectileSymbol;
@@ -77,27 +81,12 @@ public class ConfigManager {
             ));
         }
     }
-    public static double playerDamageRate;
-    public static double etcDamageRate;
-    public static int foodDelay;
-    public static FoodData undyingTotem;
-    public static DamageMeterData damageMeterData;
-    public static WeaponData bearHand;
-    public static ProjectileData normalArrow;
-    public static ArmorData shield;
-    public static Map<Material, WeaponData> weaponDataMap;
-    public static Map<Material, ArmorData> armorDataMap;
-    public static Map<Material, ProjectileData> projectileDataMap;
-    public static Map<Material, FoodData> foodDataMap;
-    public static Map<EntityType, DamageApplier> entityDataMap;
-    public static Map<Enchantment, ArmorEnchantData> armorEnchantDataMap;
-    public static Map<Enchantment, DamageEnchantData> projectileEnchantDataMap;
-    public static Map<Enchantment, DamageEnchantData> weaponEnchantDataMap;
+    //무게 관련 데이터
     public record WeightData(
-        int normalSpeedRate,
-        int maxWeight,
-        double speedRatePerWeight,
-        double fallDamageRatePerWeight
+            int normalSpeedRate,
+            int maxWeight,
+            double speedRatePerWeight,
+            double fallDamageRatePerWeight
     )
     {
         public double getSpeedRate(int weight){
@@ -115,42 +104,43 @@ public class ConfigManager {
         }
     }
     public static WeightData weightData;
+    //아이템 로어 데이터
     public static boolean useItemLore = false;
     public record ItemLoreData(
-        List<String> loreFormat,
+            List<String> loreFormat,
 
-        String attackDamageLine,
-        String penetrateLine,
-        String projectileDamageLine,
-        String defenceLine,
-        String foodLine,
-        String attributeLine,
+            String attackDamageLine,
+            String penetrateLine,
+            String projectileDamageLine,
+            String defenceLine,
+            String foodLine,
+            String attributeLine,
 
-        String attackSpeedFormat,
-        String attackDistanceFormat,
-        String weightFormat,
+            String attackSpeedFormat,
+            String attackDistanceFormat,
+            String weightFormat,
 
-        String maxConsumeAmountFormat,
-        String hungerFormat,
-        String healFormat,
-        String graduallyHealFormat,
-        String healDurationFormat,
-        String coolDownFormat,
+            String maxConsumeAmountFormat,
+            String hungerFormat,
+            String healFormat,
+            String graduallyHealFormat,
+            String healDurationFormat,
+            String coolDownFormat,
 
-        String damagePropertiesFormat,
-        String fireTag,
-        String projectileTag,
-        String explosionTag,
-        String fallTag,
-        String tagSeparator,
-        String tagPrefix,
-        String tagSuffix,
+            String damagePropertiesFormat,
+            String fireTag,
+            String projectileTag,
+            String explosionTag,
+            String fallTag,
+            String tagSeparator,
+            String tagPrefix,
+            String tagSuffix,
 
-        String normalFormat,
-        String physicsFormat,
-        String magicFormat,
-        String constFormat,
-        String attackTypeSeparator
+            String normalFormat,
+            String physicsFormat,
+            String magicFormat,
+            String constFormat,
+            String attackTypeSeparator
     )
     {
         public List<String> getItemLore(ItemStack item){
@@ -158,8 +148,8 @@ public class ConfigManager {
             double attackSpeed = -1;
             double attackDistance = -1;
             StringBuilder builder = new StringBuilder();
-            if(CombatManager.hasArmorData(item)){
-                ArmorData data = CombatManager.getArmorData(item);
+            if(hasArmorData(item)){
+                ArmorData data = getArmorData(item);
                 builder.append(defenceLine);
                 builder.append("/n");
                 builder.append(getIHasDamageTagValueLore(data.getDefences()));
@@ -167,8 +157,8 @@ public class ConfigManager {
 
                 weight += data.getWeight();
             }
-            if(CombatManager.hasWeaponData(item) && !item.getType().equals(Material.SHIELD)){
-                WeaponData data = CombatManager.getWeaponData(item);
+            if(hasWeaponData(item) && !item.getType().equals(Material.SHIELD)){
+                WeaponData data = getWeaponData(item);
                 builder.append(attackDamageLine);
                 builder.append("/n");
                 builder.append(getIHasDamageTagValueLore(data.getDamage().getDamages()));
@@ -183,8 +173,8 @@ public class ConfigManager {
                 attackSpeed = data.getAttackSpeed();
                 attackDistance = data.getAttackDistance();
             }
-            if(CombatManager.hasProjectileData(item)){
-                ProjectileData data = CombatManager.getProjectileData(item);
+            if(hasProjectileData(item)){
+                ProjectileData data = getProjectileData(item);
                 builder.append(projectileDamageLine);
                 builder.append("/n");
                 builder.append(getIHasDamageTagValueLore(data.getDamage().getDamages()));
@@ -195,10 +185,10 @@ public class ConfigManager {
                     builder.append("/n");
                 }
             }
-            if(CombatManager.hasFoodData(item)){
+            if(hasFoodData(item)){
                 builder.append(foodLine);
                 builder.append("/n");
-                FoodData data = CombatManager.getFoodData(item);
+                FoodData data = getFoodData(item);
                 if(data.getMaxConsumeAmount() > 1){
                     builder.append(Util.remapString(maxConsumeAmountFormat, "value", Util.safeToString(data.getMaxConsumeAmount())));
                     builder.append("/n");
@@ -245,7 +235,7 @@ public class ConfigManager {
             Map<Integer, List<IHasDamageTagValue>> tagMap = new HashMap<>();
             StringBuilder builder = new StringBuilder();
             for(IHasDamageTagValue data : values) {
-                tagMap.compute(data.getDamageTag().getDamageTypeFlag(), (key, value) -> {
+                tagMap.compute(data.getDamageTag().getDamageAttributeFlag(), (key, value) -> {
                     if (value == null) {
                         value = new ArrayList<>();
                     }
@@ -254,7 +244,7 @@ public class ConfigManager {
                 });
             }
             for(int key : tagMap.keySet().stream().sorted(Integer::compareTo).collect(Collectors.toList())){
-                EnumSet<DamageTag.DamageType> tags = DamageTag.getDamageTypeFromFlag(key);
+                EnumSet<DamageTag.DamageAttribute> tags = DamageTag.getDamageAttributeFromFlag(key);
                 StringBuilder innerBuilder = new StringBuilder();
                 if(tags.size() > 0){
                     innerBuilder.append(tags.stream().map((value) -> {
@@ -303,11 +293,32 @@ public class ConfigManager {
         }
     }
     public static ItemLoreData itemLoreData;
+    //</editor-fold>
+    //<editor-fold desc="데이터 맵">
+    public static FoodData undyingTotem;
+    public static DamageMeterData damageMeterData;
+    public static WeaponData bearHand;
+    public static ProjectileData normalArrow;
+    public static ArmorData shield;
+    public static Map<Material, WeaponData> weaponDataMap;
+    public static Map<Material, ArmorData> armorDataMap;
+    public static Map<Material, ProjectileData> projectileDataMap;
+    public static Map<Material, FoodData> foodDataMap;
+    public static Map<EntityType, DamageApplier> entityDataMap;
+    public static Map<Enchantment, ArmorEnchantData> armorEnchantDataMap;
+    public static Map<Enchantment, DamageEnchantData> projectileEnchantDataMap;
+    public static Map<Enchantment, DamageEnchantData> weaponEnchantDataMap;
+    //</editor-fold>
+    public static double playerDamageRate;
+    public static double etcDamageRate;
+    public static int foodDelay;
 
+    //<editor-fold desc="초기화">
     public static void init() {
         config.load(false);
         settings.load(false);
 
+        //<editor-fold desc="데미지 미터기 초기화">
         useDamageMeter = config.get(Boolean.class, "데미지미터기.사용");
         if (useDamageMeter) {
             damageMeterData = new DamageMeterData(
@@ -326,7 +337,9 @@ public class ConfigManager {
                     Util.remapColor(config.getToString("데미지미터기.심볼.낙하"))
             );
         }
+        //</editor-fold>
 
+        //<editor-fold desc="아이템 로어 초기화">
         useItemLore = config.get(Boolean.class, "아이템로어.사용");
         if (useItemLore) {
             itemLoreData = new ItemLoreData(
@@ -366,14 +379,18 @@ public class ConfigManager {
                     Util.remapColor(config.getToString("아이템로어.형태.데미지속성.데미지.구분"))
             );
         }
+        //</editor-fold>
 
+        //<editor-fold desc="무게 데이터 초기화">
         weightData = new WeightData(
                 settings.get(Integer.class, "무게.기본이속"),
                 settings.get(Integer.class, "무게.최대무게"),
                 settings.getToNumber("무게.무게당이속감소"),
                 settings.getToNumber("무게.무게당낙뎀증가율")
         );
+        //</editor-fold>
 
+        //데이터 맵 초기화
         weaponDataMap = new HashMap<>();
         armorDataMap = new HashMap<>();
         projectileDataMap = new HashMap<>();
@@ -382,8 +399,12 @@ public class ConfigManager {
         armorEnchantDataMap = new HashMap<>();
         projectileEnchantDataMap = new HashMap<>();
         weaponEnchantDataMap = new HashMap<>();
+
+        //기본 데이터
         bearHand = settings.getOrDefault(new WeaponData(), "무기.맨손");
         normalArrow = settings.getOrDefault(new ProjectileData(), "발사체.기본");
+
+        //데이터 맵 Initialize
 
         for (String key : settings.getKeys("무기")) {
             if (key.equalsIgnoreCase("맨손")) {
@@ -455,6 +476,8 @@ public class ConfigManager {
             projectileEnchantDataMap.put(type, data);
         }
 
+        //기타 데이터들
+
         shield = settings.getOrDefault(new ArmorData(), "기타.방패");
         armorDataMap.put(Material.SHIELD, shield);
         ItemStack item = CustomItemManager.hasRegisteredItemReplacement(Material.SHIELD) ?
@@ -478,5 +501,182 @@ public class ConfigManager {
 
         playerDamageRate = settings.getToNumber("기타.데미지보정.플레이어");
         etcDamageRate = settings.getToNumber("기타.데미지보정.기타");
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="무기 데이터">
+    public static boolean hasWeaponData(ItemStack weapon){
+        return weaponDataMap.containsKey(weapon.getType());
+    }
+
+    public static WeaponData getWeaponData(LivingEntity entity){
+        ItemStack weapon = entity.getEquipment().getItemInMainHand();
+        if(!ItemUtil.isExist(weapon)){
+            return bearHand;
+        }
+        return getWeaponData(weapon);
+    }
+
+    public static WeaponData getWeaponData(ItemStack weapon){
+        if(NBTTagStore.containKey(weapon, Keys.Weapon_Data.toString())){
+            return NBTTagStore.get(weapon, Keys.Weapon_Data.toString(), WeaponData.class);
+        }
+        return getNewWeaponData(weapon);
+    }
+
+    //무기 데이터 가져오기 (재계산)
+    public static WeaponData getNewWeaponData(ItemStack weapon){
+        WeaponData output = weaponDataMap.get(weapon.getType());
+        if(output == null){
+            return bearHand;
+        }
+        Map<Enchantment, Integer> enchants = weapon.getItemMeta().getEnchants();
+        if(enchants != null && enchants.size() > 0){
+            for(Enchantment enchant : enchants.keySet()){
+                if(hasWeaponEnchantData(enchant)){
+                    DamageEnchantData data = getWeaponEnchantData(enchant);
+                    output = output.merge(data.getEnchant(enchants.get(enchant)));
+                }
+            }
+        }
+        return output;
+    }
+
+    public static boolean hasWeaponEnchantData(Enchantment enchantment){
+        return weaponEnchantDataMap.containsKey(enchantment);
+    }
+
+    public static DamageEnchantData getWeaponEnchantData(Enchantment enchantment){
+        if(hasWeaponEnchantData(enchantment)){
+            return weaponEnchantDataMap.get(enchantment);
+        }
+        return new DamageEnchantData();
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="갑옷 데이터">
+    public static boolean hasArmorData(ItemStack armor){
+        return armorDataMap.containsKey(armor.getType());
+    }
+
+    public static ArmorData getArmorData(ItemStack armor){
+        if(NBTTagStore.containKey(armor, Keys.Armor_Data.toString())){
+            return NBTTagStore.get(armor, Keys.Armor_Data.toString(), ArmorData.class);
+        }
+        return getNewArmorData(armor);
+    }
+
+    //갑옷 데이터 가져오기 (재계산)
+    public static ArmorData getNewArmorData(ItemStack armor){
+        ArmorData output = armorDataMap.get(armor.getType());
+        if(output == null){
+            return new ArmorData();
+        }
+        Map<Enchantment, Integer> enchants = armor.getItemMeta().getEnchants();
+        if(enchants != null && enchants.size() > 0){
+            for(Enchantment enchant : enchants.keySet()){
+                if(hasArmorEnchantData(enchant)){
+                    ArmorEnchantData data = getArmorEnchantData(enchant);
+                    output = output.merge(data.getEnchant(enchants.get(enchant)));
+                }
+            }
+        }
+        return output;
+    }
+
+    public static boolean hasArmorEnchantData(Enchantment enchantment){
+        return armorEnchantDataMap.containsKey(enchantment);
+    }
+
+    public static ArmorEnchantData getArmorEnchantData(Enchantment enchantment){
+        if(hasArmorEnchantData(enchantment)){
+            return armorEnchantDataMap.get(enchantment);
+        }
+        return new ArmorEnchantData();
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="발사체 데이터">
+    public static boolean hasProjectileData(LivingEntity entity){
+        ItemStack weapon = entity.getEquipment().getItemInMainHand();
+        if(!ItemUtil.isExist(weapon) || !hasProjectileData(weapon)){
+            weapon = entity.getEquipment().getItemInOffHand();
+            return hasProjectileData(weapon);
+        }
+        return hasProjectileData(weapon);
+    }
+
+    public static boolean hasProjectileData(ItemStack armor){
+        return projectileDataMap.containsKey(armor.getType());
+    }
+
+    public static ProjectileData getProjectileData(LivingEntity entity){
+        ItemStack weapon = entity.getEquipment().getItemInMainHand();
+        if(!ItemUtil.isExist(weapon) || !hasProjectileData(weapon)){
+            weapon = entity.getEquipment().getItemInOffHand();
+            return getProjectileData(weapon);
+        }
+        return getProjectileData(weapon);
+    }
+
+    public static ProjectileData getProjectileData(ItemStack weapon){
+        if(NBTTagStore.containKey(weapon, Keys.Projectile_Data.toString())){
+            return NBTTagStore.get(weapon, Keys.Projectile_Data.toString(), ProjectileData.class);
+        }
+        return getNewProjectileData(weapon);
+    }
+
+    //발사체 데이터 가져오기 (재계산)
+    public static ProjectileData getNewProjectileData(ItemStack weapon){
+        ProjectileData output = projectileDataMap.get(weapon.getType());
+        if(output == null){
+            return normalArrow;
+        }
+        Map<Enchantment, Integer> enchants = weapon.getItemMeta().getEnchants();
+        if(enchants != null && enchants.size() > 0){
+            for(Enchantment enchant : enchants.keySet()){
+                if(hasProjectileEnchantData(enchant)){
+                    DamageEnchantData data = getProjectileEnchantData(enchant);
+                    output = output.merge(data.getEnchant(enchants.get(enchant)));
+                }
+            }
+        }
+        return output;
+    }
+
+    public static boolean hasProjectileEnchantData(Enchantment enchantment){
+        return projectileEnchantDataMap.containsKey(enchantment);
+    }
+
+    public static DamageEnchantData getProjectileEnchantData(Enchantment enchantment){
+        if(hasProjectileEnchantData(enchantment)){
+            return projectileEnchantDataMap.get(enchantment);
+        }
+        return new DamageEnchantData();
+    }
+    //</editor-fold>
+
+    public static boolean hasFoodData(ItemStack item){
+        return foodDataMap.containsKey(item.getType());
+    }
+
+    public static FoodData getFoodData(ItemStack item){
+        FoodData output = foodDataMap.get(item.getType());
+        if(output == null){
+            return new FoodData();
+        }
+        return output;
+    }
+
+    public static boolean hasEntityData(EntityType type){
+        return entityDataMap.containsKey(type);
+    }
+
+    public static DamageApplier getEntityData(EntityType type){
+        DamageApplier output = entityDataMap.get(type);
+        if(output == null){
+            return new DamageApplier();
+        }
+        return output;
     }
 }

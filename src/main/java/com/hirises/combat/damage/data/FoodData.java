@@ -3,7 +3,7 @@ package com.hirises.combat.damage.data;
 import com.hirises.combat.AdvancedCombat;
 import com.hirises.combat.config.ConfigManager;
 import com.hirises.combat.config.Keys;
-import com.hirises.combat.damage.CombatManager;
+import com.hirises.combat.damage.manager.CombatManager;
 import com.hirises.core.data.TimeUnit;
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.NBTTagStore;
@@ -15,17 +15,22 @@ import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.List;
 
+//음식 데이터
+@Immutable
+@ThreadSafe
 public class FoodData implements DataUnit {
-    private double instantHeal;
-    private double instantHunger;
-    private double healPerSecond;
-    private int healDuration;
-    private int coolDown;
-    private int maxConsumeAmount;
-    private List<Material> coolWith;
+    private double instantHeal;     //즉시 회복
+    private double instantHunger;   //허기 회복량
+    private double healPerSecond;   //초당 회복량
+    private int healDuration;       //초당 회복 지속 시간 (틱)
+    private int coolDown;           //쿨다운 (틱)
+    private int maxConsumeAmount;   //1회 섭취량
+    private List<Material> coolWith;    //쿨다운 공유 아이템
 
     public FoodData(){
         this.instantHeal = 0;
@@ -34,6 +39,50 @@ public class FoodData implements DataUnit {
         this.coolDown = 0;
         this.maxConsumeAmount = 1;
         this.coolWith = new ArrayList<>();
+    }
+
+    //해당 음식의 효과를 적용
+    public void eat(LivingEntity entity, int amount){
+        if(instantHeal > 0){
+            //즉시 회복
+            CombatManager.heal(entity, instantHeal * amount);
+        }
+        if(entity instanceof Player){
+            Player player = (Player) entity;
+            if(instantHunger > 0){
+                //허기 회복
+                if(player.getFoodLevel() + (instantHunger * amount) > 19){
+                    player.setFoodLevel(19);
+                }else{
+                    player.setFoodLevel(player.getFoodLevel() + (int)Math.floor(instantHunger * amount));
+                }
+            }
+            if(player.getGameMode() != GameMode.CREATIVE){
+                //쿨다운 시작
+                startCoolDown(player);
+            }
+        }
+        if(healPerSecond > 0){
+            //초당 힐 적용
+            double heal = (healPerSecond * amount) / (20.0 / ConfigManager.foodDelay);
+            CombatManager.startHealGradually(entity, heal);
+            new CancelableTask(AdvancedCombat.getInst(), healDuration + 1){
+                @Override
+                public void run() {
+                    CombatManager.endHealGradually(entity, heal);
+                }
+            };
+        }
+    }
+
+    //쿨다운 시작
+    public void startCoolDown(Player player){
+        if(coolDown > 0){
+            for(Material mat : coolWith){
+                NBTTagStore.set(player, Keys.MaterialCoolDown + mat.toString(), Util.getCurrentTick() + coolDown);
+                player.setCooldown(mat, coolDown);
+            }
+        }
     }
 
     public double getInstantHunger() {
@@ -62,44 +111,6 @@ public class FoodData implements DataUnit {
 
     public int getMaxConsumeAmount() {
         return maxConsumeAmount;
-    }
-
-    public void eat(LivingEntity entity, int amount){
-        if(instantHeal > 0){
-            CombatManager.heal(entity, instantHeal * amount);
-        }
-        if(entity instanceof Player){
-            Player player = (Player) entity;
-            if(instantHunger > 0){
-                if(player.getFoodLevel() + (instantHunger * amount) > 19){
-                    player.setFoodLevel(19);
-                }else{
-                    player.setFoodLevel(player.getFoodLevel() + (int)Math.floor(instantHunger * amount));
-                }
-            }
-            if(player.getGameMode() != GameMode.CREATIVE){
-                startCoolDown(player);
-            }
-        }
-        if(healPerSecond > 0){
-            double heal = (healPerSecond * amount) / (20.0 / ConfigManager.foodDelay);
-            CombatManager.startHealGradually(entity, heal);
-            new CancelableTask(AdvancedCombat.getInst(), healDuration + 1){
-                @Override
-                public void run() {
-                    CombatManager.endHealGradually(entity, heal);
-                }
-            };
-        }
-    }
-
-    public void startCoolDown(Player player){
-        if(coolDown > 0){
-            for(Material mat : coolWith){
-                NBTTagStore.set(player, Keys.MaterialCoolDown + mat.toString(), Util.getCurrentTick() + coolDown);
-                player.setCooldown(mat, coolDown);
-            }
-        }
     }
 
     @Override

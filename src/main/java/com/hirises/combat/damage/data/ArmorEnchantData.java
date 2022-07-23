@@ -1,15 +1,21 @@
 package com.hirises.combat.damage.data;
 
+import com.hirises.combat.damage.calculate.Defence;
 import com.hirises.core.data.unit.DataUnit;
 import com.hirises.core.store.YamlStore;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+//갑옷 인첸트 데이터
+@Immutable
+@ThreadSafe
 public class ArmorEnchantData implements DataUnit {
-    private List<Defence> initialDefence;
-    private List<Defence> increaseDefence;
+    private List<Defence> initialDefence;   //기본 방어력 증가량
+    private List<Defence> increaseDefence;  //레벨당 방어력 증가량
 
     public ArmorEnchantData(){
         initialDefence = new ArrayList<>();
@@ -24,6 +30,7 @@ public class ArmorEnchantData implements DataUnit {
         return Collections.unmodifiableList(initialDefence);
     }
 
+    //해당 인첸트 레벨에 따른 방어력 증가량을 반환
     public List<Defence> getEnchant(int level){
         List<Defence> result = new ArrayList<>();
         result.addAll(initialDefence);

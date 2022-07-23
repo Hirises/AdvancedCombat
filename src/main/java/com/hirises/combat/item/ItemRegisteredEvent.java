@@ -4,6 +4,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
+//아이템이 새로 등록 (= 생성) 되었을 때 호출되는 이벤트 (ex 몬스터 드롭, 제작, 거래등)
 public class ItemRegisteredEvent extends Event {
     enum Cause{
         Chest,

@@ -4,6 +4,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
+//아이템 상태 변경시 호출되는 이벤트 (ex 인첸트, 수리등)
 public class ItemChangeEvent extends Event {
     enum Cause{
         Enchant,
